@@ -1,0 +1,6 @@
+{
+  "name": "Winnie's Clinic",
+  "description": "Modern African healthcare institution providing compassionate, world-class medical consultation, specialized surgery, diagnostics, and patient-centered care.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
