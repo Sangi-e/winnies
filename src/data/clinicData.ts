@@ -57,16 +57,19 @@ export const CLINIC_IMAGES = {
   heroSlide1Surgical: '/src/assets/images/surgical_team_wide_1793704304402.jpg',
   heroSlide2Nursing: '/src/assets/images/nurse_patient_care_1793704291076.jpg',
   heroSlide3Consultation: '/src/assets/images/consult_doctor_wide_1793704317252.jpg',
+  // Maternity and Laboratory Photography
+  maternityNewborn: '/src/assets/images/maternity_mother_newborn_1793713097382.jpg',
+  laboratoryCare: '/src/assets/images/laboratory_diagnostic_care_1793713098031.jpg',
 };
 
 export const CLINIC_INFO = {
   name: "Winnie's Clinic",
   tagline: 'Modern African Healthcare Excellence',
   mission: 'Delivering patient-centered, dignified, and world-class medical care powered by distinguished African clinicians, state-of-the-art diagnostic facilities, and compassionate service.',
-  phone: '+234 1 890 4400',
-  emergencyHotline: '+234 1 890 9999 (24/7 Acute Care)',
+  phone: '+234-8037-3927-30',
+  emergencyHotline: '+234-8037-3927-30 (24/7 Acute Care)',
   email: 'care@winniesclinic.org',
-  address: 'Plot 14 Victoria Island Medical Boulevard, Lagos, Nigeria',
+  address: 'Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State, Nigeria',
   hours: 'Outpatient: Monday – Saturday: 7:30 AM – 8:00 PM | Emergency & Inpatient: 24/7 All Days',
   accreditation: 'Federal Ministry of Health Certified · HEFAMAA Accredited · African Healthcare Quality Alliance Fellow',
 };
@@ -362,7 +365,7 @@ export const TESTIMONIALS = [
     quote: 'I had my laparoscopic surgery performed by Dr. Folashade Adeleke. The theatre was world-class, the surgical team was deeply reassuring, and I was walking comfortably by evening. Winnie\'s Clinic sets the standard for African healthcare.',
     author: 'Amina Bello-Sanusi',
     role: 'Surgical Patient',
-    location: 'Victoria Island, Lagos',
+    location: 'Okigwe, Imo State',
     department: 'Surgical Sciences'
   },
   {

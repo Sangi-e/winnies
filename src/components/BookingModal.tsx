@@ -173,7 +173,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 <div>
                   <span className="text-slate-500 block">Department & Suite</span>
                   <span className="font-semibold text-slate-900 text-sm">{currentDept.name}</span>
-                  <span className="text-slate-600 block">Plot 14 Victoria Island, Lagos</span>
+                  <span className="text-slate-600 block">Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block">Date & Time</span>

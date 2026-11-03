@@ -89,21 +89,21 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="text-slate-600 hidden sm:inline" aria-hidden="true">|</span>
             <span className="inline-flex items-center gap-1.5 text-slate-300">
               <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" strokeWidth={2} />
-              <span>Plot 14, Victoria Island, Lagos</span>
+              <span>Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State</span>
             </span>
           </div>
 
           {/* Emergency & Acute Care Telephone */}
           <div className="flex items-center justify-center gap-3">
             <a 
-              href="tel:+23418909999" 
+              href="tel:+2348037392730" 
               className="group inline-flex items-center gap-1.5 text-slate-200 hover:text-white transition-colors font-medium whitespace-nowrap"
               title="24/7 Acute Care & Emergency Line"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               <Phone className="w-3.5 h-3.5 text-emerald-400 group-hover:text-emerald-300 shrink-0" strokeWidth={2} />
               <span>Emergency:</span>
-              <span className="font-semibold text-emerald-300">+234 1 890 9999</span>
+              <span className="font-semibold text-emerald-300">+234-8037-3927-30</span>
             </a>
           </div>
         </div>
@@ -138,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
                 Winnie's Clinic
               </span>
               <span className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-emerald-800 mt-1">
-                Medical Centre · Lagos
+                Medical Centre · Okigwe, Imo State
               </span>
             </div>
           </button>
@@ -288,14 +288,14 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="pt-2 text-xs space-y-1.5 text-slate-600">
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                  <a href="tel:+23418909999" className="font-semibold text-slate-900 hover:text-emerald-800">
-                    +234 1 890 9999 (24/7)
+                  <a href="tel:+2348037392730" className="font-semibold text-slate-900 hover:text-emerald-800">
+                    +234-8037-3927-30 (24/7)
                   </a>
                 </div>
                 <div className="flex items-start gap-2">
                   <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
                   <span className="text-[11px] text-slate-600 leading-snug">
-                    Plot 14, Victoria Island, Lagos
+                    Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State
                   </span>
                 </div>
               </div>

@@ -173,3 +173,57 @@ export function calculateSlideProgress(elapsedMs: number, durationMs: number): n
   if (durationMs <= 0) return 0;
   return Math.min(100, Math.max(0, (elapsedMs / durationMs) * 100));
 }
+
+export interface ContactFormInput {
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+}
+
+export interface ValidationErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  subject?: string;
+  message?: string;
+}
+
+/**
+ * Validates the Contact Us form fields.
+ */
+export function validateContactForm(input: ContactFormInput): { isValid: boolean; errors: ValidationErrors } {
+  const errors: ValidationErrors = {};
+
+  if (!input.name || !input.name.trim() || input.name.trim().length < 2) {
+    errors.name = 'Full name is required (minimum 2 characters).';
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!input.email || !input.email.trim()) {
+    errors.email = 'Email address is required.';
+  } else if (!emailRegex.test(input.email.trim())) {
+    errors.email = 'Please provide a valid email address (e.g. name@domain.com).';
+  }
+
+  const digits = (input.phone || '').replace(/[^0-9]/g, '');
+  if (!input.phone || !input.phone.trim()) {
+    errors.phone = 'Phone number is required for patient relations follow-up.';
+  } else if (digits.length < 7) {
+    errors.phone = 'Please provide a valid phone number (at least 7 digits).';
+  }
+
+  if (!input.subject || !input.subject.trim()) {
+    errors.subject = 'Please specify or select an enquiry subject.';
+  }
+
+  if (!input.message || !input.message.trim() || input.message.trim().length < 10) {
+    errors.message = 'Please provide your message (minimum 10 characters).';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}

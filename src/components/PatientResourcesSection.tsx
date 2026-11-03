@@ -166,10 +166,10 @@ export const PatientResourcesSection: React.FC<PatientResourcesSectionProps> = (
                 Visit & Contact Winnie's Clinic
               </span>
               <h3 className="font-display text-2xl sm:text-3xl font-bold text-white">
-                Victoria Island Medical Center
+                Okigwe Medical Center
               </h3>
               <p className="text-sm text-slate-300 leading-relaxed max-w-lg">
-                Conveniently located in the heart of Victoria Island with dedicated patient parking, wheelchair accessible access ramps, and round-the-clock security.
+                Conveniently located at Holy Ghost Bomb Junction, Umuchima, Okigwe with dedicated patient parking, wheelchair accessible access ramps, and round-the-clock security.
               </p>
 
               <div className="space-y-3 pt-2 text-xs sm:text-sm text-slate-300">

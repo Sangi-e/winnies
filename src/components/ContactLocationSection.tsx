@@ -49,7 +49,7 @@ export const ContactLocationSection: React.FC = () => {
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
-            Conveniently located in Victoria Island, Lagos. Reach our patient relations team for inquiries, appointment bookings, or acute medical support.
+            Conveniently located at Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State. Reach our patient relations team for inquiries, appointment bookings, or acute medical support.
           </p>
         </div>
 
@@ -70,10 +70,10 @@ export const ContactLocationSection: React.FC = () => {
                   <span>Acute Emergency (24/7)</span>
                 </div>
                 <a 
-                  href="tel:+23418909999" 
+                  href="tel:+2348037392730" 
                   className="font-display text-base sm:text-lg font-bold text-slate-900 hover:text-emerald-800 transition-colors block"
                 >
-                  +234 1 890 9999
+                  +234-8037-3927-30
                 </a>
                 <p className="text-[11px] text-slate-500 mt-1">Always available for urgent attention</p>
               </div>
@@ -85,10 +85,10 @@ export const ContactLocationSection: React.FC = () => {
                   <span>General Appointments</span>
                 </div>
                 <a 
-                  href="tel:+23418904400" 
+                  href="tel:+2348037392730" 
                   className="font-display text-base sm:text-lg font-bold text-slate-900 hover:text-emerald-800 transition-colors block"
                 >
-                  +234 1 890 4400
+                  +234-8037-3927-30
                 </a>
                 <p className="text-[11px] text-slate-500 mt-1">Mon – Sat: 7:30 AM – 8:00 PM</p>
               </div>
@@ -100,9 +100,9 @@ export const ContactLocationSection: React.FC = () => {
                   <span>Clinic Address</span>
                 </div>
                 <p className="text-sm font-semibold text-slate-900 leading-snug">
-                  Plot 14 Victoria Island, Lagos
+                  Holy Ghost Bomb Junction, Umuchima, Okigwe
                 </p>
-                <p className="text-[11px] text-slate-500 mt-1">Lagos State, Nigeria</p>
+                <p className="text-[11px] text-slate-500 mt-1">Imo State, Nigeria</p>
               </div>
 
               {/* Official Email & WhatsApp Card */}
@@ -118,13 +118,13 @@ export const ContactLocationSection: React.FC = () => {
                   care@winniesclinic.org
                 </a>
                 <a
-                  href="https://wa.me/23418909999?text=Hello%20Winnie's%20Clinic,%20I%20would%20like%20to%20enquire%20about%20a%20consultation."
+                  href="https://wa.me/2348037392730?text=Hello%20Winnie's%20Clinic,%20I%20would%20like%20to%20enquire%20about%20a%20consultation."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-semibold hover:underline mt-1"
                 >
                   <MessageSquare className="w-3 h-3 text-emerald-600" />
-                  <span>WhatsApp: +234 1 890 9999</span>
+                  <span>WhatsApp: +234-8037-3927-30</span>
                 </a>
               </div>
 
@@ -146,7 +146,7 @@ export const ContactLocationSection: React.FC = () => {
                     <span>Inquiry Received Successfully</span>
                   </div>
                   <p className="text-xs text-emerald-800 leading-relaxed">
-                    Thank you, {formData.name}. Our patient desk at Victoria Island has received your message and will respond promptly via {formData.contact}.
+                    Thank you, {formData.name}. Our patient desk at Umuchima, Okigwe has received your message and will respond promptly via {formData.contact}.
                   </p>
                   <button
                     onClick={() => {
@@ -223,10 +223,10 @@ export const ContactLocationSection: React.FC = () => {
               <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
                 <div className="flex items-center gap-2 text-xs font-medium">
                   <MapPin className="w-4 h-4 text-emerald-400" />
-                  <span>Victoria Island Medical Boulevard, Lagos</span>
+                  <span>Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State</span>
                 </div>
                 <a
-                  href="https://maps.google.com/?q=Victoria+Island+Lagos+Nigeria"
+                  href="https://maps.google.com/?q=Holy+Ghost+Bomb+Junction+Umuchima+Okigwe+Imo+State+Nigeria"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 hover:text-white transition-colors"
@@ -236,11 +236,11 @@ export const ContactLocationSection: React.FC = () => {
                 </a>
               </div>
 
-              {/* Embedded Map iframe for Victoria Island, Lagos */}
+              {/* Embedded Map iframe for Okigwe, Imo State */}
               <div className="relative h-72 sm:h-80 w-full bg-slate-100">
                 <iframe
-                  title="Winnie's Clinic Victoria Island Location Map"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.7289569733475!2d3.42168937586561!3d6.428867324260907!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103bf53280e7648d%3A0x4d01e528b7b2512f!2sVictoria%20Island%2C%20Lagos!5e0!3m2!1sen!2sng!4v1710000000000!5m2!1sen!2sng"
+                  title="Winnie's Clinic Okigwe Location Map"
+                  src="https://maps.google.com/maps?q=Okigwe%2C%20Imo%20State%2C%20Nigeria&t=&z=14&ie=UTF8&iwloc=&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -255,7 +255,7 @@ export const ContactLocationSection: React.FC = () => {
               <div className="p-4 bg-white border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
                 <span>Dedicated on-site patient parking & wheelchair access</span>
                 <a
-                  href="https://maps.google.com/?q=Victoria+Island+Lagos+Nigeria"
+                  href="https://maps.google.com/?q=Holy+Ghost+Bomb+Junction+Umuchima+Okigwe+Imo+State+Nigeria"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 font-semibold text-emerald-800 hover:text-emerald-950"

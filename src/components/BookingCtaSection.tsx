@@ -67,7 +67,7 @@ export const BookingCtaSection: React.FC<BookingCtaSectionProps> = ({
               </button>
 
               <a
-                href="tel:+23418909999"
+                href="tel:+2348037392730"
                 className="inline-flex items-center gap-2 px-5 py-3.5 text-sm font-semibold text-white bg-white/10 hover:bg-white/20 active:bg-white/5 border border-white/20 rounded-xl transition-colors cursor-pointer"
                 title="Call Winnie's Clinic"
               >
@@ -76,7 +76,7 @@ export const BookingCtaSection: React.FC<BookingCtaSectionProps> = ({
               </a>
 
               <a
-                href="https://wa.me/23418909999?text=Hello%20Winnie's%20Clinic,%20I%20would%20like%20to%20enquire%20about%20a%20consultation."
+                href="https://wa.me/2348037392730?text=Hello%20Winnie's%20Clinic,%20I%20would%20like%20to%20enquire%20about%20a%20consultation."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-3.5 text-sm font-semibold text-emerald-200 hover:text-white hover:underline transition-colors cursor-pointer"

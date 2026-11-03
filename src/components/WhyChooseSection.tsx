@@ -31,12 +31,12 @@ export const WhyChooseSection: React.FC = () => {
       id: 'emergency-triage',
       title: '24/7 Acute Emergency Triage',
       description: 'Always available for urgent medical attention.',
-      detail: 'Immediate medical stabilization and round-the-clock urgent triage ready at our Victoria Island facility.',
+      detail: 'Immediate medical stabilization and round-the-clock urgent triage ready at our Holy Ghost Bomb Junction, Umuchima facility in Okigwe.',
       icon: Clock,
       highlight: true,
       action: {
-        label: '+234 1 890 9999',
-        href: 'tel:+23418909999',
+        label: '+234-8037-3927-30',
+        href: 'tel:+2348037392730',
       }
     },
   ];

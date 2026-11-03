@@ -26,13 +26,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
                   Winnie's Clinic
                 </span>
                 <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-semibold">
-                  Medical Centre · Lagos
+                  Medical Centre · Okigwe, Imo State
                 </span>
               </div>
             </div>
             
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              Providing patient-centred healthcare in Victoria Island, Lagos. Guided by professional rigor, clinical empathy, and modern medical standards.
+              Providing patient-centred healthcare in Umuchima, Okigwe, Imo State. Guided by professional rigor, clinical empathy, and modern medical standards.
             </p>
 
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium">
@@ -44,7 +44,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
           {/* Quick Navigation Links */}
           <div>
             <h4 className="font-display font-semibold text-white uppercase tracking-wider text-[11px] mb-3">
-              Homepage Navigation
+              Navigation
             </h4>
             <ul className="space-y-2">
               <li>
@@ -52,15 +52,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
                   onClick={() => onNavigate('home')}
                   className="hover:text-white transition-colors text-left cursor-pointer"
                 >
-                  Home Banner
+                  Home
                 </button>
               </li>
               <li>
                 <button
                   onClick={() => onNavigate('about')}
-                  className="hover:text-white transition-colors text-left cursor-pointer"
+                  className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors text-left cursor-pointer"
                 >
-                  Welcome to Winnie's
+                  About Us (Winnie's Clinic)
                 </button>
               </li>
               <li>
@@ -85,6 +85,14 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
                   className="hover:text-white transition-colors text-left cursor-pointer"
                 >
                   Inside Our Clinic
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('health-insights')}
+                  className="hover:text-white transition-colors text-left cursor-pointer"
+                >
+                  Health Insights & Guides
                 </button>
               </li>
               <li>
@@ -174,19 +182,19 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
 
               <div className="pt-1 space-y-1">
                 <a
-                  href="tel:+23418909999"
+                  href="tel:+2348037392730"
                   className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-semibold transition-colors block"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>+234 1 890 9999 (24/7)</span>
+                  <span>+234-8037-3927-30 (24/7)</span>
                 </a>
 
                 <a
-                  href="tel:+23418904400"
+                  href="tel:+2348037392730"
                   className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors block"
                 >
                   <Phone className="w-3.5 h-3.5 text-slate-400" />
-                  <span>+234 1 890 4400 (General)</span>
+                  <span>+234-8037-3927-30 (General)</span>
                 </a>
 
                 <a
@@ -198,7 +206,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
                 </a>
 
                 <a
-                  href="https://wa.me/23418909999?text=Hello%20Winnie's%20Clinic,%20I%20would%20like%20to%20enquire%20about%20a%20consultation."
+                  href="https://wa.me/2348037392730?text=Hello%20Winnie's%20Clinic,%20I%20would%20like%20to%20enquire%20about%20a%20consultation."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 transition-colors block"
@@ -215,13 +223,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
         {/* Quiet Bottom Strip */}
         <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
           <div>
-            © {new Date().getFullYear()} Winnie's Clinic Ltd. All rights reserved. Registered with Lagos State Health Facility Monitoring and Accreditation Agency (HEFAMAA).
+            © {new Date().getFullYear()} Winnie's Clinic Ltd. All rights reserved.
           </div>
           
           <div className="flex items-center gap-4">
             <span className="text-slate-400 flex items-center gap-1">
               <MapPin className="w-3 h-3 text-emerald-500" />
-              <span>Plot 14 Victoria Island, Lagos</span>
+              <span>Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State</span>
             </span>
             <span className="text-slate-700">|</span>
             <span className="text-slate-400 hover:text-white transition-colors cursor-pointer">

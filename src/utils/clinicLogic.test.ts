@@ -8,7 +8,8 @@ import {
   formatCurrency,
   getNextSlideIndex,
   getPrevSlideIndex,
-  calculateSlideProgress
+  calculateSlideProgress,
+  validateContactForm
 } from './clinicLogic';
 
 test('generateAppointmentReference creates expected format', () => {
@@ -69,3 +70,30 @@ test('calculateSlideProgress clamps percentage between 0 and 100', () => {
   assert.equal(calculateSlideProgress(6000, 6000), 100);
   assert.equal(calculateSlideProgress(7500, 6000), 100);
 });
+
+test('validateContactForm passes valid inputs and rejects incomplete fields', () => {
+  const valid = validateContactForm({
+    name: 'Chidi Okonkwo',
+    email: 'chidi.okonkwo@example.com',
+    phone: '+234-8037-3927-30',
+    subject: 'Consultation Inquiry',
+    message: 'Hello, I would like to inquire about outpatient consultation timings.'
+  });
+  assert.equal(valid.isValid, true);
+  assert.equal(Object.keys(valid.errors).length, 0);
+
+  const invalid = validateContactForm({
+    name: '',
+    email: 'not-an-email',
+    phone: '123',
+    subject: '',
+    message: 'Short'
+  });
+  assert.equal(invalid.isValid, false);
+  assert.ok(invalid.errors.name);
+  assert.ok(invalid.errors.email);
+  assert.ok(invalid.errors.phone);
+  assert.ok(invalid.errors.subject);
+  assert.ok(invalid.errors.message);
+});
+

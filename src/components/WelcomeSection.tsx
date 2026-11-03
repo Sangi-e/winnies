@@ -1,6 +1,5 @@
 import React from 'react';
 import { ArrowRight, ShieldCheck, HeartHandshake } from 'lucide-react';
-import { CLINIC_IMAGES } from '../data/clinicData';
 
 interface WelcomeSectionProps {
   onDiscoverClinic: () => void;
@@ -17,12 +16,8 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
       className="py-20 lg:py-28 bg-white scroll-mt-20 overflow-hidden"
       aria-labelledby="welcome-heading"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Asymmetrical Image-and-Text Composition */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          
-          {/* Left Column: Refined Typography & Thoughtful Introduction (7 cols on lg) */}
-          <div className="lg:col-span-7 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="space-y-6">
             
             {/* Subtle Green Accent Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-800 text-xs font-semibold uppercase tracking-wider">
@@ -44,7 +39,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
             </p>
 
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              Situated in Victoria Island, Lagos, our medical facility combines modern clinical amenities with experienced African physicians and nursing professionals committed to the physical and emotional well-being of you and your family.
+              Situated at Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State, our medical facility combines modern clinical amenities with experienced African physicians and nursing professionals committed to the physical and emotional well-being of you and your family.
             </p>
 
             {/* Clinical Philosophy Pillars */}
@@ -84,31 +79,7 @@ export const WelcomeSection: React.FC<WelcomeSectionProps> = ({
               </button>
             </div>
           </div>
-
-          {/* Right Column: Large High-Quality Healthcare Photograph (5 cols on lg) */}
-          <div className="lg:col-span-5 relative">
-            {/* Decorative background border accent */}
-            <div className="absolute -inset-3 rounded-2xl bg-gradient-to-tr from-emerald-100/60 to-slate-100/40 -z-10 transform rotate-1 hidden sm:block" />
-            
-            <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-100 bg-slate-100">
-              <img
-                src={CLINIC_IMAGES.heroDoctor}
-                alt="African doctor in professional medical attire at Winnie's Clinic"
-                className="w-full h-[420px] sm:h-[480px] lg:h-[520px] object-cover object-top hover:scale-102 transition-transform duration-700"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
-              
-              {/* Subtle caption badge */}
-              <div className="absolute bottom-4 left-4 right-4 p-3 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200/80 text-xs shadow-md">
-                <p className="font-semibold text-slate-900">Dr. Nkechi Eze & Clinical Faculty</p>
-                <p className="text-slate-500 text-[11px] mt-0.5">Dedicated to attentive, patient-first consultations in Victoria Island</p>
-              </div>
-            </div>
-          </div>
-
         </div>
-      </div>
-    </section>
-  );
-};
+      </section>
+    );
+  };

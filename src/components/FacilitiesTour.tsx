@@ -109,7 +109,7 @@ export const FacilitiesTour: React.FC<FacilitiesTourProps> = ({
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed">
-            Every clinical zone at Winnie's Clinic has been designed for patient comfort, acoustic privacy, and spotless hygiene. Take a visual walk through our Victoria Island facility.
+            Every clinical zone at Winnie's Clinic has been designed for patient comfort, acoustic privacy, and spotless hygiene. Take a visual walk through our Holy Ghost Bomb Junction, Umuchima facility in Okigwe.
           </p>
         </div>
 
@@ -212,7 +212,7 @@ export const FacilitiesTour: React.FC<FacilitiesTourProps> = ({
                   <span>Visiting Our Clinic</span>
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Our facility welcomes outpatients and planned consultations in Victoria Island. Schedule ahead for priority consultation slots.
+                  Our facility welcomes outpatients and planned consultations in Umuchima, Okigwe. Schedule ahead for priority consultation slots.
                 </p>
                 <button
                   onClick={onOpenBooking}

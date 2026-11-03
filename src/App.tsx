@@ -2,18 +2,54 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
 import { WelcomeSection } from './components/WelcomeSection';
-import { ServicesSection } from './components/ServicesSection';
 import { WhyChooseSection } from './components/WhyChooseSection';
-import { FacilitiesTour } from './components/FacilitiesTour';
+import { HealthInsightsSection } from './components/HealthInsightsSection';
 import { BookingCtaSection } from './components/BookingCtaSection';
 import { ContactLocationSection } from './components/ContactLocationSection';
+import { AboutUsPage } from './components/AboutUsPage';
+import { ServicesPage } from './components/ServicesPage';
+import { ContactUsPage } from './components/ContactUsPage';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { HealthCheckerModal } from './components/HealthCheckerModal';
 import { PhotoInspectionModal } from './components/PhotoInspectionModal';
 
 export default function App() {
-  const [activeSection, setActiveSection] = useState<string>('home');
+  // Page Route: 'home' | 'about' | 'services' | 'contact'
+  const [currentRoute, setCurrentRoute] = useState<'home' | 'about' | 'services' | 'contact'>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
+        return 'contact';
+      }
+      if (path === '/services' || hash === '#/services' || hash === '#services-page') {
+        return 'services';
+      }
+      if (path === '/about' || hash === '#/about' || hash === '#about-page') {
+        return 'about';
+      }
+    }
+    return 'home';
+  });
+
+  const [activeSection, setActiveSection] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
+        return 'contact';
+      }
+      if (path === '/services' || hash === '#/services' || hash === '#services-page') {
+        return 'services';
+      }
+      if (path === '/about' || hash === '#/about' || hash === '#about-page') {
+        return 'about';
+      }
+    }
+    return 'home';
+  });
+
   const [isBookingOpen, setIsBookingOpen] = useState<boolean>(false);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string | null>(null);
@@ -33,8 +69,38 @@ export default function App() {
     caption: '',
   });
 
-  // Track active navigation link on scroll
+  // Handle browser back/forward history navigation
   useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase();
+      const hash = window.location.hash.toLowerCase();
+      if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
+        setCurrentRoute('contact');
+        setActiveSection('contact');
+        document.title = "Contact Us | Winnie's Clinic";
+      } else if (path === '/services' || hash === '#/services' || hash === '#services-page') {
+        setCurrentRoute('services');
+        setActiveSection('services');
+        document.title = "Our Services | Winnie's Clinic";
+      } else if (path === '/about' || hash === '#/about' || hash === '#about-page') {
+        setCurrentRoute('about');
+        setActiveSection('about');
+        document.title = "About Winnie's Clinic | Modern African Healthcare Excellence";
+      } else {
+        setCurrentRoute('home');
+        setActiveSection('home');
+        document.title = "Winnie's Clinic | Modern African Healthcare Excellence";
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Track active navigation link on scroll (only when on homepage)
+  useEffect(() => {
+    if (currentRoute !== 'home') return;
+
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 140;
       
@@ -42,9 +108,8 @@ export default function App() {
       const sections = [
         { id: 'contact', navKey: 'contact' },
         { id: 'booking-cta', navKey: 'contact' },
-        { id: 'facilities', navKey: 'services' },
+        { id: 'health-insights', navKey: 'about' },
         { id: 'why-choose', navKey: 'about' },
-        { id: 'services', navKey: 'services' },
         { id: 'about', navKey: 'about' },
       ];
 
@@ -67,9 +132,71 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [currentRoute]);
 
   const handleNavigate = (sectionId: string) => {
+    // 1. User clicked "Services"
+    if (sectionId === 'services') {
+      setCurrentRoute('services');
+      setActiveSection('services');
+      if (window.location.pathname !== '/services') {
+        window.history.pushState(null, '', '/services');
+      }
+      document.title = "Our Services | Winnie's Clinic";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 2. User clicked "About Us"
+    if (sectionId === 'about') {
+      setCurrentRoute('about');
+      setActiveSection('about');
+      if (window.location.pathname !== '/about') {
+        window.history.pushState(null, '', '/about');
+      }
+      document.title = "About Winnie's Clinic | Modern African Healthcare Excellence";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 3. User clicked "Contact Us"
+    if (sectionId === 'contact') {
+      setCurrentRoute('contact');
+      setActiveSection('contact');
+      if (window.location.pathname !== '/contact') {
+        window.history.pushState(null, '', '/contact');
+      }
+      document.title = "Contact Us | Winnie's Clinic";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 4. If navigating away from a dedicated page (about, services, or contact) to Home or a section
+    if (currentRoute !== 'home') {
+      setCurrentRoute('home');
+      if (window.location.pathname !== '/') {
+        window.history.pushState(null, '', '/');
+      }
+      document.title = "Winnie's Clinic | Modern African Healthcare Excellence";
+
+      if (sectionId === 'home') {
+        setActiveSection('home');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      setActiveSection(sectionId);
+      // Wait for Homepage DOM elements to render then scroll
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 50);
+      return;
+    }
+
+    // 4. User is already on the Homepage
     setActiveSection(sectionId);
     if (sectionId === 'home') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -87,8 +214,8 @@ export default function App() {
     setIsBookingOpen(true);
   };
 
-  const handleSelectDepartmentForBooking = (deptId: string) => {
-    setSelectedDepartmentId(deptId);
+  const handleSelectDepartmentForBooking = (deptId?: string) => {
+    setSelectedDepartmentId(deptId || null);
     setSelectedDoctorId(null);
     setIsBookingOpen(true);
   };
@@ -113,46 +240,67 @@ export default function App() {
         onOpenHealthChecker={() => setIsHealthCheckerOpen(true)}
       />
 
-      {/* Main Homepage: Exactly Seven Content Sections in Specified Order */}
+      {/* Main Content: Dedicated Route Rendering */}
       <main className="flex-1">
-        
-        {/* Section 1: Hero Section — Three-Slide Image Banner */}
-        <HeroSection
-          onOpenBooking={handleOpenGeneralBooking}
-          onExploreServices={() => handleNavigate('services')}
-          onDiscoverApproach={() => handleNavigate('about')}
-        />
+        {currentRoute === 'services' ? (
+          /* Dedicated Our Services Page Route */
+          <ServicesPage
+            onOpenBooking={handleSelectDepartmentForBooking}
+            onNavigateContact={() => handleNavigate('contact')}
+            onNavigateHome={() => handleNavigate('home')}
+            onOpenPhotoModal={handleOpenPhotoModal}
+          />
+        ) : currentRoute === 'about' ? (
+          /* Dedicated About Us Page Route */
+          <AboutUsPage
+            onOpenBooking={handleOpenGeneralBooking}
+            onExploreServices={() => handleNavigate('services')}
+            onNavigateHome={() => handleNavigate('home')}
+            onOpenPhotoModal={handleOpenPhotoModal}
+          />
+        ) : currentRoute === 'contact' ? (
+          /* Dedicated Contact Us Page Route */
+          <ContactUsPage
+            onOpenBooking={handleOpenGeneralBooking}
+            onExploreServices={() => handleNavigate('services')}
+            onNavigateHome={() => handleNavigate('home')}
+            onOpenPhotoModal={handleOpenPhotoModal}
+          />
+        ) : (
+          /* Homepage: All 7 Core Content Sections */
+          <>
+            {/* Section 1: Hero Section — Three-Slide Image Banner */}
+            <HeroSection
+              onOpenBooking={handleOpenGeneralBooking}
+              onExploreServices={() => handleNavigate('services')}
+              onDiscoverApproach={() => handleNavigate('about')}
+            />
 
-        {/* Section 2: Welcome to Winnie's Clinic */}
-        <WelcomeSection
-          onDiscoverClinic={() => handleNavigate('about')}
-          onOpenBooking={handleOpenGeneralBooking}
-        />
+            {/* Section 2: Welcome to Winnie's Clinic */}
+            <WelcomeSection
+              onDiscoverClinic={() => handleNavigate('about')}
+              onOpenBooking={handleOpenGeneralBooking}
+            />
 
-        {/* Section 3: Our Medical Services */}
-        <ServicesSection
-          onSelectDepartmentForBooking={handleSelectDepartmentForBooking}
-          onOpenPhotoModal={handleOpenPhotoModal}
-        />
+            {/* Section 3: Why Choose Winnie's Clinic? */}
+            <WhyChooseSection />
 
-        {/* Section 4: Why Choose Winnie's Clinic? */}
-        <WhyChooseSection />
+            {/* Section 4: Health Insights & Patient Education Articles */}
+            <HealthInsightsSection
+              onOpenBooking={handleSelectDepartmentForBooking}
+              onOpenPhotoModal={handleOpenPhotoModal}
+            />
 
-        {/* Section 5: Inside Winnie's Clinic (Facilities & Environmental Showcase) */}
-        <FacilitiesTour
-          onOpenPhotoModal={handleOpenPhotoModal}
-          onOpenBooking={handleOpenGeneralBooking}
-        />
+            {/* Section 5: Appointment Booking Section */}
+            <BookingCtaSection
+              onOpenBooking={handleOpenGeneralBooking}
+              onContactClick={() => handleNavigate('contact')}
+            />
 
-        {/* Section 6: Appointment Booking Section */}
-        <BookingCtaSection
-          onOpenBooking={handleOpenGeneralBooking}
-          onContactClick={() => handleNavigate('contact')}
-        />
-
-        {/* Section 7: Contact & Location */}
-        <ContactLocationSection />
-
+            {/* Section 8: Contact & Location */}
+            <ContactLocationSection />
+          </>
+        )}
       </main>
 
       {/* Section 8: Footer */}
