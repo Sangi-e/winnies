@@ -66,8 +66,51 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     if (!validate()) return;
 
     setIsSubmitting(true);
+    const refCode = `WIN-APT-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    const formspreePayload = {
+      name: patientName.trim(),
+      "Patient Name": patientName.trim(),
+      patientName: patientName.trim(),
+      phone: patientPhone.trim(),
+      "Phone Number": patientPhone.trim(),
+      patientPhone: patientPhone.trim(),
+      email: patientEmail.trim() || undefined,
+      _replyto: patientEmail.trim() || undefined,
+      patientEmail: patientEmail.trim() || 'Not provided',
+      preferredDate,
+      "Preferred Appointment Date": preferredDate,
+      preferredTime,
+      "Preferred Appointment Time": preferredTime,
+      service: visitReason.trim(),
+      visitReason: visitReason.trim(),
+      "Reason for Visit / Service": visitReason.trim(),
+      additionalMessage: additionalMessage.trim() || undefined,
+      "Additional Message": additionalMessage.trim() || 'None provided',
+      referenceNumber: refCode,
+      _subject: `New Appointment Booking Request (Quick Modal): ${patientName.trim()} (${preferredDate} @ ${preferredTime})`,
+    };
+
     try {
-      const res = await fetch('/api/appointments', {
+      const res = await fetch('https://formspree.io/f/xoeeoqwa', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formspreePayload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const errorMsg = Array.isArray(data.errors)
+          ? data.errors.map((e: any) => e.message).join(', ')
+          : (data.error || 'Failed to submit request.');
+        throw new Error(errorMsg);
+      }
+
+      // Also persist to local /api/appointments if available (non-blocking)
+      fetch('/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -79,14 +122,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           visitReason: visitReason.trim(),
           additionalMessage: additionalMessage.trim() || null,
         }),
-      });
+      }).catch(() => {});
 
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to submit request.');
-      }
+      setSubmittedRef(refCode);
 
-      setSubmittedRef(data.referenceNumber);
+      // Clear the form fields after successful submission
+      setPatientName('');
+      setPatientPhone('');
+      setPatientEmail('');
+      setPreferredDate('');
+      setVisitReason('');
+      setAdditionalMessage('');
+      setErrors({});
     } catch (err: any) {
       setServerError(err.message || 'Error transmitting appointment request to clinic.');
     } finally {

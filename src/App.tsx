@@ -14,41 +14,70 @@ import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { HealthCheckerModal } from './components/HealthCheckerModal';
 import { PhotoInspectionModal } from './components/PhotoInspectionModal';
+import { NotFoundPage } from './components/NotFoundPage';
+
+export type RouteKey = 'home' | 'about' | 'services' | 'contact' | 'booking' | 'not-found';
+
+export function resolveRouteFromUrl(pathname: string, hash: string = ''): RouteKey {
+  if (typeof window === 'undefined') return 'home';
+  const cleanPath = (pathname || '/').toLowerCase().trim().replace(/\/+$/, '') || '/';
+  const cleanHash = (hash || '').toLowerCase().trim();
+
+  if (cleanPath === '/' || cleanPath === '') {
+    return 'home';
+  }
+  if (cleanPath === '/about' || cleanHash === '#/about' || cleanHash === '#about-page') {
+    return 'about';
+  }
+  if (cleanPath === '/services' || cleanHash === '#/services' || cleanHash === '#services-page') {
+    return 'services';
+  }
+  if (cleanPath === '/contact' || cleanHash === '#/contact' || cleanHash === '#contact-page') {
+    return 'contact';
+  }
+  if (
+    cleanPath === '/book-consultation' ||
+    cleanPath === '/book' ||
+    cleanPath === '/booking' ||
+    cleanHash === '#/book' ||
+    cleanHash === '#booking-page'
+  ) {
+    return 'booking';
+  }
+  return 'not-found';
+}
+
+function updatePageTitle(route: RouteKey) {
+  if (typeof document === 'undefined') return;
+  if (route === 'booking') {
+    document.title = "Book an Appointment | Winnie's Clinic";
+  } else if (route === 'contact') {
+    document.title = "Contact Us | Winnie's Clinic";
+  } else if (route === 'services') {
+    document.title = "Our Services | Winnie's Clinic";
+  } else if (route === 'about') {
+    document.title = "About Winnie's Clinic | Modern African Healthcare Excellence";
+  } else if (route === 'not-found') {
+    document.title = "Page Not Found | Winnie's Clinic";
+  } else {
+    document.title = "Winnie's Clinic | Modern African Healthcare Excellence";
+  }
+}
 
 export default function App() {
-  // Page Route: 'home' | 'about' | 'services' | 'contact' | 'booking'
-  const [currentRoute, setCurrentRoute] = useState<'home' | 'about' | 'services' | 'contact' | 'booking'>(() => {
+  // Page Route: 'home' | 'about' | 'services' | 'contact' | 'booking' | 'not-found'
+  const [currentRoute, setCurrentRoute] = useState<RouteKey>(() => {
     if (typeof window !== 'undefined') {
-      const path = window.location.pathname.toLowerCase();
-      const hash = window.location.hash.toLowerCase();
-      if (path === '/book' || path === '/booking' || path === '/book-consultation' || hash === '#/book' || hash === '#booking-page') {
-        return 'booking';
-      }
-      if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
-        return 'contact';
-      }
-      if (path === '/services' || hash === '#/services' || hash === '#services-page') {
-        return 'services';
-      }
-      if (path === '/about' || hash === '#/about' || hash === '#about-page') {
-        return 'about';
-      }
+      return resolveRouteFromUrl(window.location.pathname, window.location.hash);
     }
     return 'home';
   });
 
   const [activeSection, setActiveSection] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      const path = window.location.pathname.toLowerCase();
-      const hash = window.location.hash.toLowerCase();
-      if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
-        return 'contact';
-      }
-      if (path === '/services' || hash === '#/services' || hash === '#services-page') {
-        return 'services';
-      }
-      if (path === '/about' || hash === '#/about' || hash === '#about-page') {
-        return 'about';
+      const route = resolveRouteFromUrl(window.location.pathname, window.location.hash);
+      if (route === 'about' || route === 'services' || route === 'contact') {
+        return route;
       }
     }
     return 'home';
@@ -73,33 +102,21 @@ export default function App() {
     caption: '',
   });
 
-  // Handle browser back/forward history navigation
+  // Handle browser back/forward history navigation & ensure title updates
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname.toLowerCase();
-      const hash = window.location.hash.toLowerCase();
-      if (path === '/book' || path === '/booking' || path === '/book-consultation' || hash === '#/book' || hash === '#booking-page') {
-        setCurrentRoute('booking');
-        setActiveSection('home');
-        document.title = "Book a Consultation | Winnie's Clinic";
-      } else if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
-        setCurrentRoute('contact');
-        setActiveSection('contact');
-        document.title = "Contact Us | Winnie's Clinic";
-      } else if (path === '/services' || hash === '#/services' || hash === '#services-page') {
-        setCurrentRoute('services');
-        setActiveSection('services');
-        document.title = "Our Services | Winnie's Clinic";
-      } else if (path === '/about' || hash === '#/about' || hash === '#about-page') {
-        setCurrentRoute('about');
-        setActiveSection('about');
-        document.title = "About Winnie's Clinic | Modern African Healthcare Excellence";
+      const nextRoute = resolveRouteFromUrl(window.location.pathname, window.location.hash);
+      setCurrentRoute(nextRoute);
+      if (nextRoute === 'about' || nextRoute === 'services' || nextRoute === 'contact') {
+        setActiveSection(nextRoute);
       } else {
-        setCurrentRoute('home');
         setActiveSection('home');
-        document.title = "Winnie's Clinic | Modern African Healthcare Excellence";
       }
+      updatePageTitle(nextRoute);
     };
+
+    // Ensure title matches initial route on load
+    updatePageTitle(currentRoute);
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -295,6 +312,13 @@ export default function App() {
             onExploreServices={() => handleNavigate('services')}
             onNavigateHome={() => handleNavigate('home')}
             onOpenPhotoModal={handleOpenPhotoModal}
+          />
+        ) : currentRoute === 'not-found' ? (
+          /* Dedicated 404 Not Found Page Route */
+          <NotFoundPage
+            onNavigateHome={() => handleNavigate('home')}
+            onExploreServices={() => handleNavigate('services')}
+            onBookAppointment={() => handleNavigate('booking')}
           />
         ) : (
           /* Homepage: All 7 Core Content Sections */

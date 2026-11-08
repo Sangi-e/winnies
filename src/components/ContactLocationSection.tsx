@@ -7,8 +7,12 @@ import {
   Send, 
   CheckCircle, 
   ExternalLink,
-  MessageSquare
+  MessageSquare,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
+
+const FORMSPREE_CONTACT_ENDPOINT = 'https://formspree.io/f/mwlldkbv';
 
 export const ContactLocationSection: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -17,13 +21,70 @@ export const ContactLocationSection: React.FC = () => {
     message: '',
   });
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+  const [submittedName, setSubmittedName] = useState<string>('');
+  const [submittedContact, setSubmittedContact] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim() || !formData.contact.trim() || !formData.message.trim()) {
+    setSubmitError(null);
+
+    const trimmedName = formData.name.trim();
+    const trimmedContact = formData.contact.trim();
+    const trimmedMessage = formData.message.trim();
+
+    if (!trimmedName || !trimmedContact || !trimmedMessage) {
+      setSubmitError('Please fill in all required fields.');
       return;
     }
-    setFormSubmitted(true);
+
+    setIsSubmitting(true);
+
+    try {
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedContact);
+
+      const response = await fetch(FORMSPREE_CONTACT_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: trimmedName,
+          "Full Name": trimmedName,
+          contact: trimmedContact,
+          "Contact Info": trimmedContact,
+          email: isEmail ? trimmedContact : undefined,
+          _replyto: isEmail ? trimmedContact : undefined,
+          phone: !isEmail ? trimmedContact : undefined,
+          subject: 'Patient Relations Inquiry (Homepage)',
+          message: trimmedMessage,
+          _subject: `Patient Relations Inquiry from ${trimmedName}`,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const errorMsg = Array.isArray(data.errors) 
+          ? data.errors.map((err: any) => err.message).join(', ')
+          : (data.error || 'Unable to submit your message. Please try again.');
+        throw new Error(errorMsg);
+      }
+
+      setSubmittedName(trimmedName);
+      setSubmittedContact(trimmedContact);
+      setFormSubmitted(true);
+      setFormData({ name: '', contact: '', message: '' });
+    } catch (err: any) {
+      console.error('Contact inquiry submission failed:', err);
+      setSubmitError(
+        err.message || 'Transmission failed. Please check your network or call +234-8037-3927-30 directly.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -112,10 +173,10 @@ export const ContactLocationSection: React.FC = () => {
                   <span>Electronic Mail</span>
                 </div>
                 <a 
-                  href="mailto:care@winniesclinic.org" 
+                  href="mailto:info@winniesclinic.com" 
                   className="text-sm font-semibold text-slate-900 hover:text-emerald-800 transition-colors block truncate"
                 >
-                  care@winniesclinic.org
+                  info@winniesclinic.com
                 </a>
                 <a
                   href="https://wa.me/2348037392730?text=Hello%20Winnie's%20Clinic,%20I%20would%20like%20to%20enquire%20about%20a%20consultation."
@@ -146,11 +207,14 @@ export const ContactLocationSection: React.FC = () => {
                     <span>Inquiry Received Successfully</span>
                   </div>
                   <p className="text-xs text-emerald-800 leading-relaxed">
-                    Thank you, {formData.name}. Our patient desk at Umuchima, Okigwe has received your message and will respond promptly via {formData.contact}.
+                    Thank you, {submittedName}. Your message has been transmitted directly to our patient relations desk at Winnie’s Clinic. We will respond promptly via {submittedContact}.
                   </p>
                   <button
                     onClick={() => {
                       setFormSubmitted(false);
+                      setSubmittedName('');
+                      setSubmittedContact('');
+                      setSubmitError(null);
                       setFormData({ name: '', contact: '', message: '' });
                     }}
                     className="text-xs font-semibold text-emerald-800 underline hover:text-emerald-950 pt-1 block cursor-pointer"
@@ -160,6 +224,13 @@ export const ContactLocationSection: React.FC = () => {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {submitError && (
+                    <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                      <span>{submitError}</span>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-xs font-medium text-slate-700 mb-1">
                       Your Full Name *
@@ -204,10 +275,20 @@ export const ContactLocationSection: React.FC = () => {
 
                   <button
                     type="submit"
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-emerald-800 hover:bg-emerald-900 rounded-lg shadow-xs transition-colors cursor-pointer"
+                    disabled={isSubmitting}
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-emerald-800 hover:bg-emerald-900 rounded-lg shadow-xs transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    <Send className="w-4 h-4 text-emerald-200" />
-                    <span>Send Message to Patient Relations</span>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Sending to Clinic...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 text-emerald-200" />
+                        <span>Send Message to Patient Relations</span>
+                      </>
+                    )}
                   </button>
                 </form>
               )}

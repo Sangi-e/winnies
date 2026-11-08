@@ -193,11 +193,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
                 </a>
 
                 <a
-                  href="mailto:care@winniesclinic.org"
+                  href="mailto:info@winniesclinic.com"
                   className="inline-flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors block"
                 >
                   <Mail className="w-3.5 h-3.5 text-slate-400" />
-                  <span>care@winniesclinic.org</span>
+                  <span>info@winniesclinic.com</span>
                 </a>
 
                 <a

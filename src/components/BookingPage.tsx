@@ -156,8 +156,33 @@ export const BookingPage: React.FC<BookingPageProps> = ({
     setIsSubmitting(true);
 
     const effectiveTime = preferredTime === 'Other / Custom Time' ? customTime.trim() : preferredTime;
+    const refCode = `WIN-APT-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const payload = {
+    const formspreePayload = {
+      name: patientName.trim(),
+      "Patient Name": patientName.trim(),
+      patientName: patientName.trim(),
+      phone: patientPhone.trim(),
+      "Phone Number": patientPhone.trim(),
+      patientPhone: patientPhone.trim(),
+      email: patientEmail.trim() || undefined,
+      _replyto: patientEmail.trim() || undefined,
+      patientEmail: patientEmail.trim() || 'Not provided',
+      preferredDate,
+      "Preferred Appointment Date": preferredDate,
+      preferredTime: effectiveTime,
+      "Preferred Appointment Time": effectiveTime,
+      service: visitReason.trim(),
+      visitReason: visitReason.trim(),
+      "Reason for Visit / Service": visitReason.trim(),
+      additionalMessage: additionalMessage.trim() || undefined,
+      "Additional Message": additionalMessage.trim() || 'None provided',
+      referenceNumber: refCode,
+      _subject: `New Appointment Booking Request: ${patientName.trim()} (${preferredDate} @ ${effectiveTime})`,
+    };
+
+    const submittedSnapshot = {
+      referenceNumber: refCode,
       patientName: patientName.trim(),
       patientPhone: patientPhone.trim(),
       patientEmail: patientEmail.trim() ? patientEmail.trim() : null,
@@ -165,34 +190,56 @@ export const BookingPage: React.FC<BookingPageProps> = ({
       preferredTime: effectiveTime,
       visitReason: visitReason.trim(),
       additionalMessage: additionalMessage.trim() ? additionalMessage.trim() : null,
+      submittedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
     try {
-      const response = await fetch('/api/appointments', {
+      const response = await fetch('https://formspree.io/f/xoeeoqwa', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formspreePayload),
       });
 
-      const result = await response.json();
+      const data = await response.json().catch(() => ({}));
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || 'Failed to submit appointment request. Please try again.');
+      if (!response.ok) {
+        const errorMsg = Array.isArray(data.errors)
+          ? data.errors.map((e: any) => e.message).join(', ')
+          : (data.error || 'Failed to submit appointment request. Please try again.');
+        throw new Error(errorMsg);
       }
 
-      setSubmittedData({
-        referenceNumber: result.referenceNumber,
-        patientName: payload.patientName,
-        patientPhone: payload.patientPhone,
-        patientEmail: payload.patientEmail,
-        preferredDate: payload.preferredDate,
-        preferredTime: payload.preferredTime,
-        visitReason: payload.visitReason,
-        additionalMessage: payload.additionalMessage,
-        submittedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      });
+      // Also persist to local /api/appointments if available (non-blocking)
+      fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patientName: submittedSnapshot.patientName,
+          patientPhone: submittedSnapshot.patientPhone,
+          patientEmail: submittedSnapshot.patientEmail,
+          preferredDate: submittedSnapshot.preferredDate,
+          preferredTime: submittedSnapshot.preferredTime,
+          visitReason: submittedSnapshot.visitReason,
+          additionalMessage: submittedSnapshot.additionalMessage,
+        }),
+      }).catch(() => {});
+
+      // Display confirmed submission receipt
+      setSubmittedData(submittedSnapshot);
+
+      // Clear the form fields after successful submission
+      setPatientName('');
+      setPatientPhone('');
+      setPatientEmail('');
+      setPreferredDate('');
+      setPreferredTime('09:00 AM');
+      setCustomTime('');
+      setVisitReason('');
+      setAdditionalMessage('');
+      setErrors({});
 
       window.scrollTo({ top: 80, behavior: 'smooth' });
     } catch (err: any) {

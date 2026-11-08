@@ -35,6 +35,8 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
   onNavigateHome,
   onOpenPhotoModal,
 }) => {
+  const FORMSPREE_CONTACT_ENDPOINT = 'https://formspree.io/f/mwlldkbv';
+
   // Form State
   const [formData, setFormData] = useState<ContactFormInput>({
     name: '',
@@ -46,6 +48,8 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [submittedSnapshot, setSubmittedSnapshot] = useState<ContactFormInput | null>(null);
   const [submissionResult, setSubmissionResult] = useState<{
     submitted: boolean;
     referenceCode: string;
@@ -83,10 +87,11 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validation = validateContactForm(formData);
+    setServerError(null);
 
+    const validation = validateContactForm(formData);
     if (!validation.isValid) {
       setErrors(validation.errors);
       return;
@@ -95,34 +100,66 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
     setIsSubmitting(true);
     setErrors({});
 
-    // Simulate realistic processing delay
-    setTimeout(() => {
+    try {
+      const response = await fetch(FORMSPREE_CONTACT_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          "Full Name": formData.name.trim(),
+          email: formData.email.trim(),
+          _replyto: formData.email.trim(),
+          phone: formData.phone.trim(),
+          "Phone Number": formData.phone.trim(),
+          subject: formData.subject,
+          message: formData.message.trim(),
+          _subject: `[${formData.subject}] Enquiry from ${formData.name.trim()}`,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        const errorMsg = Array.isArray(data.errors) 
+          ? data.errors.map((err: any) => err.message).join(', ')
+          : (data.error || 'Failed to submit contact enquiry. Please try again.');
+        throw new Error(errorMsg);
+      }
+
       const refCode = `WIN-ENQ-${Math.floor(100000 + Math.random() * 900000)}`;
       const timestamp = new Date().toLocaleString('en-GB', {
         dateStyle: 'medium',
         timeStyle: 'short',
       });
 
-      // Save inquiry to session storage log for transparency
-      try {
-        const stored = JSON.parse(sessionStorage.getItem('winnies_enquiries') || '[]');
-        stored.push({
-          ref: refCode,
-          ...formData,
-          submittedAt: timestamp,
-        });
-        sessionStorage.setItem('winnies_enquiries', JSON.stringify(stored));
-      } catch {
-        // Fallback gracefully if storage is restricted
-      }
+      // Save snapshot for summary display
+      setSubmittedSnapshot({ ...formData });
 
-      setIsSubmitting(false);
+      // Clear the form fields after successful submission
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: 'General Medical Inquiry',
+        message: '',
+      });
+
       setSubmissionResult({
         submitted: true,
         referenceCode: refCode,
         timestamp,
       });
-    }, 450);
+    } catch (err: any) {
+      console.error('Contact form submission error:', err);
+      setServerError(
+        err.message || 'We were unable to deliver your message. Please check your connection or contact us directly at info@winniesclinic.com.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleResetForm = () => {
@@ -134,6 +171,8 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
       message: '',
     });
     setErrors({});
+    setServerError(null);
+    setSubmittedSnapshot(null);
     setSubmissionResult(null);
   };
 
@@ -151,6 +190,8 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
     `[${formData.subject}] Enquiry from ${formData.name || 'Patient'}`
   )}&body=${mailtoBody}`;
 
+  const generalWhatsAppLink = "https://wa.me/2348037392730?text=Hello%20Winnie's%20Clinic,%20I%20would%20like%20to%20enquire%20about%20your%20medical%20services.";
+
   const whatsappText = encodeURIComponent(
     `Hello Winnie's Clinic,\n` +
     `My name is ${formData.name || 'Patient'}.\n` +
@@ -162,7 +203,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
   const whatsappLink = `https://wa.me/2348037392730?text=${whatsappText}`;
 
   return (
-    <div className="bg-white text-slate-900 min-h-screen">
+    <div className="bg-white text-slate-900 min-h-screen relative">
       
       {/* -------------------------------------------------------------
           1. CONTACT PAGE HERO SECTION
@@ -231,6 +272,26 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>24/7 Acute Care Ready</span>
               </div>
+            </div>
+
+            {/* Direct WhatsApp and Telephone Action Buttons */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <a
+                href={generalWhatsAppLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              >
+                <MessageSquare className="w-4 h-4 text-emerald-950" />
+                <span>Chat on WhatsApp (+234-8037-3927-30)</span>
+              </a>
+              <a
+                href="tel:+2348037392730"
+                className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/20 backdrop-blur-xs transition-colors"
+              >
+                <Phone className="w-4 h-4 text-emerald-300" />
+                <span>Call Clinic Directly</span>
+              </a>
             </div>
 
             {/* Photo attribution / Lightbox preview button */}
@@ -307,14 +368,54 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                   </div>
                 </div>
 
-                {/* 2. Call Us Card */}
+                {/* 2. WhatsApp Direct Chat Card */}
+                <div className="p-5 sm:p-6 rounded-2xl bg-emerald-50/70 border border-emerald-200/90 shadow-xs hover:border-emerald-300 transition-colors">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <MessageSquare className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1.5 text-sm flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-slate-900 text-base">WhatsApp Desk</h3>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                          Direct Chat
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        Chat directly with our patient relations desk on WhatsApp for fast inquiries and clinic directions:
+                      </p>
+                      <a 
+                        href={generalWhatsAppLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-display text-lg font-bold text-emerald-950 hover:text-emerald-800 transition-colors block pt-0.5"
+                      >
+                        +234-8037-3927-30
+                      </a>
+                      <div className="pt-2">
+                        <a 
+                          href={generalWhatsAppLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                          <span>Chat on WhatsApp (+234-8037-3927-30)</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Call Us Card */}
                 <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:border-emerald-300/60 transition-colors">
                   <div className="flex items-start gap-3.5">
                     <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-100">
                       <Phone className="w-5 h-5" />
                     </div>
                     <div className="space-y-1 text-sm">
-                      <h3 className="font-semibold text-slate-900 text-base">Call Us</h3>
+                      <h3 className="font-semibold text-slate-900 text-base">Call Clinic Line</h3>
                       <p className="text-xs text-slate-500">
                         Official clinic telephone line for general inquiries and booking:
                       </p>
@@ -324,17 +425,9 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                       >
                         {CLINIC_INFO.phone}
                       </a>
-                      <div className="pt-2">
-                        <a 
-                          href={whatsappLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:text-emerald-950 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200 transition-colors"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5 text-emerald-700" />
-                          <span>Chat on WhatsApp: +234-8037-3927-30</span>
-                        </a>
-                      </div>
+                      <p className="text-xs text-slate-400 pt-1">
+                        Mon – Sat: 7:30 AM – 8:00 PM | 24/7 Emergency
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -443,6 +536,17 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                 {!submissionResult ? (
                   <form onSubmit={handleSubmit} noValidate className="space-y-6">
                     
+                    {/* Server Error Alert */}
+                    {serverError && (
+                      <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5">
+                        <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold">Unable to Deliver Message</p>
+                          <p className="mt-0.5">{serverError}</p>
+                        </div>
+                      </div>
+                    )}
+
                     {/* General Validation Error Alert */}
                     {Object.keys(errors).length > 0 && (
                       <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5">
@@ -632,7 +736,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                         </div>
                         <div>
                           <h3 className="font-display text-lg font-bold text-emerald-950">
-                            Enquiry Drafted & Recorded Locally
+                            Enquiry Transmitted to Winnie’s Clinic
                           </h3>
                           <p className="text-xs text-emerald-800">
                             Reference: <span className="font-mono font-bold">{submissionResult.referenceCode}</span> · {submissionResult.timestamp}
@@ -640,25 +744,25 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                         </div>
                       </div>
 
-                      {/* Transparent Notice about Email Integration */}
-                      <div className="p-3.5 rounded-xl bg-white/80 border border-emerald-200/80 text-xs text-slate-700 space-y-1.5">
+                      {/* Delivery Confirmation */}
+                      <div className="p-3.5 rounded-xl bg-white/90 border border-emerald-200/80 text-xs text-slate-700 space-y-1.5">
                         <div className="flex items-center gap-1.5 font-semibold text-slate-900">
-                          <Info className="w-4 h-4 text-emerald-800 shrink-0" />
-                          <span>Delivery Transparency Note</span>
+                          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+                          <span>Delivered via Formspree Patient Relations Channel</span>
                         </div>
                         <p className="leading-relaxed">
-                          This website preview operates without an active SMTP server or third-party mailing service. Your inquiry details have been saved to the browser session ledger. To ensure immediate transmission to the Winnie’s Clinic patient desk right now, choose a direct option below:
+                          Your enquiry has been successfully delivered to our administrative and clinical desk. Our patient coordinator will review your request and reach out directly.
                         </p>
                       </div>
 
-                      {/* Direct External Hand-off Actions */}
+                      {/* Direct External Options */}
                       <div className="pt-2 flex flex-wrap gap-3">
                         <a
                           href={mailtoLink}
                           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-semibold text-xs transition-colors shadow-xs"
                         >
                           <Mail className="w-4 h-4" />
-                          <span>Open in Email App (Pre-filled)</span>
+                          <span>Email Direct: info@winniesclinic.com</span>
                         </a>
 
                         <a
@@ -668,27 +772,29 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-semibold text-xs border border-emerald-300 transition-colors"
                         >
                           <MessageSquare className="w-4 h-4 text-emerald-700" />
-                          <span>Forward to WhatsApp Desk</span>
+                          <span>WhatsApp Desk: +234-8037-3927-30</span>
                         </a>
                       </div>
                     </div>
 
                     {/* Summary of Submitted Data */}
-                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2">
-                      <div className="font-semibold text-slate-900 text-sm">Summary of Your Enquiry:</div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                        <div><span className="font-medium text-slate-500">Name:</span> {formData.name}</div>
-                        <div><span className="font-medium text-slate-500">Phone:</span> {formData.phone}</div>
-                        <div><span className="font-medium text-slate-500">Email:</span> {formData.email}</div>
-                        <div><span className="font-medium text-slate-500">Subject:</span> {formData.subject}</div>
+                    {submittedSnapshot && (
+                      <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 space-y-2">
+                        <div className="font-semibold text-slate-900 text-sm">Summary of Your Enquiry:</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                          <div><span className="font-medium text-slate-500">Name:</span> {submittedSnapshot.name}</div>
+                          <div><span className="font-medium text-slate-500">Phone:</span> {submittedSnapshot.phone}</div>
+                          <div><span className="font-medium text-slate-500">Email:</span> {submittedSnapshot.email}</div>
+                          <div><span className="font-medium text-slate-500">Subject:</span> {submittedSnapshot.subject}</div>
+                        </div>
+                        <div className="pt-1 border-t border-slate-200">
+                          <span className="font-medium text-slate-500 block mb-1">Message:</span>
+                          <p className="bg-white p-3 rounded-lg border border-slate-200 whitespace-pre-line text-slate-800">
+                            {submittedSnapshot.message}
+                          </p>
+                        </div>
                       </div>
-                      <div className="pt-1 border-t border-slate-200">
-                        <span className="font-medium text-slate-500 block mb-1">Message:</span>
-                        <p className="bg-white p-3 rounded-lg border border-slate-200 whitespace-pre-line text-slate-800">
-                          {formData.message}
-                        </p>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Reset Button */}
                     <div className="pt-2">
@@ -861,6 +967,16 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               <span>Book an Appointment</span>
             </button>
 
+            <a
+              href={generalWhatsAppLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3.5 text-sm sm:text-base font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl shadow-md transition-all cursor-pointer"
+            >
+              <MessageSquare className="w-5 h-5" />
+              <span>Chat on WhatsApp (+234-8037-3927-30)</span>
+            </a>
+
             <button
               onClick={onExploreServices}
               className="inline-flex items-center gap-2 px-6 py-3.5 text-sm sm:text-base font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl transition-colors cursor-pointer"
@@ -879,6 +995,25 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
           </p>
         </div>
       </section>
+
+      {/* Floating WhatsApp Quick Contact Button */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <a
+          href={generalWhatsAppLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat with Winnie's Clinic on WhatsApp"
+          className="group flex items-center gap-2.5 px-4 py-3 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all cursor-pointer border border-emerald-400/40"
+        >
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-200 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+          </span>
+          <MessageSquare className="w-5 h-5 fill-white/20" />
+          <span className="hidden sm:inline">WhatsApp Us:</span>
+          <span>+234-8037-3927-30</span>
+        </a>
+      </div>
 
     </div>
   );

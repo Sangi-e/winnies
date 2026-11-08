@@ -79,7 +79,7 @@ export const CLINIC_INFO = {
   mission: 'Delivering patient-centered, dignified, and world-class medical care powered by distinguished African clinicians, state-of-the-art diagnostic facilities, and compassionate service.',
   phone: '+234-8037-3927-30',
   emergencyHotline: '+234-8037-3927-30 (24/7 Acute Care)',
-  email: 'care@winniesclinic.org',
+  email: 'info@winniesclinic.com',
   address: 'Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State, Nigeria',
   hours: 'Outpatient: Monday – Saturday: 7:30 AM – 8:00 PM | Emergency & Inpatient: 24/7 All Days',
   accreditation: 'Federal Ministry of Health Certified · HEFAMAA Accredited · African Healthcare Quality Alliance Fellow',

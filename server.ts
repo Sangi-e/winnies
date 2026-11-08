@@ -50,6 +50,17 @@ function saveAppointmentsList(list: any[]): boolean {
   }
 }
 
+// Valid public frontend routes in Winnie's Clinic application
+export const VALID_FRONTEND_ROUTES = [
+  '/',
+  '/about',
+  '/services',
+  '/contact',
+  '/book-consultation',
+  '/book',
+  '/booking',
+];
+
 // -------------------------------------------------------------
 // POST /api/appointments — Receive new appointment request
 // -------------------------------------------------------------
@@ -198,7 +209,7 @@ app.post('/api/appointments', (req, res) => {
 // -------------------------------------------------------------
 // GET /api/appointments — Review submitted appointment requests
 // -------------------------------------------------------------
-app.get('/api/appointments', (req, res) => {
+app.get('/api/appointments', (_req, res) => {
   const list = getAppointmentsList();
   res.json({
     success: true,
@@ -210,7 +221,7 @@ app.get('/api/appointments', (req, res) => {
 // -------------------------------------------------------------
 // GET /api/health — System health check
 // -------------------------------------------------------------
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
     clinic: "Winnie's Clinic",
@@ -222,10 +233,12 @@ app.get('/api/health', (req, res) => {
 });
 
 // -------------------------------------------------------------
-// Dev & Prod Server Lifecycle with Vite middleware
+// Dev & Prod Server Lifecycle with Robust Route Handling
 // -------------------------------------------------------------
 async function startServer() {
   const isDev = process.env.NODE_ENV !== 'production';
+  const distDir = path.resolve(__dirname, 'dist');
+  const indexHtmlPath = path.resolve(distDir, 'index.html');
 
   if (isDev) {
     const { createServer } = await import('vite');
@@ -235,15 +248,63 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    app.use(express.static(path.resolve(__dirname, 'dist')));
-    app.get('*', (req, res) => {
-      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+    // 1. Serve static assets from dist folder with MIME recognition
+    app.use(express.static(distDir, { index: false }));
+
+    // 2. Explicitly serve index.html for root route
+    app.get('/', (_req, res) => {
+      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+      res.sendFile(indexHtmlPath);
+    });
+
+    // 3. Explicitly serve index.html for all valid frontend routes with HTTP 200
+    VALID_FRONTEND_ROUTES.forEach((route) => {
+      if (route === '/') return;
+      app.get([route, `${route}/`], (_req, res) => {
+        res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+        res.sendFile(indexHtmlPath);
+      });
     });
   }
 
-  app.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`[Winnie's Clinic Server] Listening on http://0.0.0.0:${PORT} (mode: ${isDev ? 'development' : 'production'})`);
+  // 4. Preserve API routes: return JSON 404 for any unhandled /api/* call
+  app.all('/api/*', (req, res) => {
+    res.status(404).json({
+      success: false,
+      error: `API route not found: ${req.method} ${req.originalUrl}`,
+      status: 404,
+    });
   });
+
+  // 5. Genuinely missing routes: return proper HTTP 404 status
+  app.use((req, res) => {
+    res.status(404);
+    if (req.accepts('html')) {
+      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+      if (fs.existsSync(indexHtmlPath)) {
+        res.sendFile(indexHtmlPath);
+      } else {
+        res.send('<!doctype html><html><head><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>The requested URL was not found on this server.</p></body></html>');
+      }
+    } else if (req.accepts('json')) {
+      res.json({ success: false, error: 'Resource not found', status: 404 });
+    } else {
+      res.type('txt').send('404 Not Found');
+    }
+  });
+
+  // 6. Hostinger Node.js Port & Unix Domain Socket handling
+  const isSocket = typeof PORT === 'string' && (PORT.startsWith('/') || PORT.startsWith('\\\\.\\pipe\\'));
+
+  if (isSocket) {
+    app.listen(PORT, () => {
+      console.log(`[Winnie's Clinic Server] Listening on Unix socket: ${PORT} (mode: ${isDev ? 'development' : 'production'})`);
+    });
+  } else {
+    app.listen(Number(PORT), '0.0.0.0', () => {
+      console.log(`[Winnie's Clinic Server] Listening on http://0.0.0.0:${PORT} (mode: ${isDev ? 'development' : 'production'})`);
+    });
+  }
 }
 
 startServer();
