@@ -1,6 +1,6 @@
 import React from 'react';
 import { CLINIC_INFO } from '../data/clinicData';
-import { ShieldCheck, Phone, Mail, MapPin, MessageSquare, ArrowRight } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageSquare, ArrowRight } from 'lucide-react';
 
 interface FooterProps {
   onNavigate: (sectionId: string) => void;
@@ -34,11 +34,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
               Providing patient-centred healthcare in Umuchima, Okigwe, Imo State. Guided by professional rigor, clinical empathy, and modern medical standards.
             </p>
-
-            <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium">
-              <ShieldCheck className="w-4 h-4 shrink-0" />
-              <span>HEFAMAA Accredited Healthcare Facility</span>
-            </div>
           </div>
 
           {/* Quick Navigation Links */}
@@ -154,10 +149,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking }) => 
               </li>
               <li>
                 <button
-                  onClick={onOpenBooking}
+                  onClick={() => onNavigate('booking')}
                   className="text-emerald-400 font-semibold hover:text-emerald-300 transition-colors inline-flex items-center gap-1 cursor-pointer pt-1"
                 >
-                  <span>Book Consultation</span>
+                  <span>Book an Appointment</span>
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </li>

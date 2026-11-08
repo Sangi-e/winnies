@@ -392,19 +392,11 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
 
               <div className="pt-4 flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => onOpenBooking('obstetrics')}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-emerald-800 hover:bg-emerald-900 active:bg-emerald-950 rounded-lg shadow-sm transition-colors cursor-pointer"
-                >
-                  <Calendar className="w-4 h-4 text-emerald-200" />
-                  <span>Book Maternal Consultation</span>
-                </button>
-
-                <button
                   onClick={() => setSelectedService(services.maternity)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:text-emerald-800 hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-emerald-950 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 rounded-lg transition-colors cursor-pointer"
                 >
                   <span>Learn More</span>
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                  <ChevronRight className="w-4 h-4 text-emerald-800" />
                 </button>
               </div>
 
@@ -448,19 +440,11 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
 
               <div className="pt-4 flex flex-wrap items-center gap-3">
                 <button
-                  onClick={() => onOpenBooking('surgery')}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white bg-emerald-800 hover:bg-emerald-900 active:bg-emerald-950 rounded-lg shadow-sm transition-colors cursor-pointer"
-                >
-                  <Calendar className="w-4 h-4 text-emerald-200" />
-                  <span>Book Surgical Consultation</span>
-                </button>
-
-                <button
                   onClick={() => setSelectedService(services.surgical)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:text-emerald-800 hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-semibold text-emerald-950 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 rounded-lg transition-colors cursor-pointer"
                 >
                   <span>Learn More</span>
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                  <ChevronRight className="w-4 h-4 text-emerald-800" />
                 </button>
               </div>
 
@@ -471,33 +455,10 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
               <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-xl bg-slate-900 relative">
                 <img
                   src={CLINIC_IMAGES.operatingTheatre}
-                  alt="Actual Winnie's Clinic operating theatre with modern surgical lighting and sterile instrumentation"
+                  alt="Modern surgical operating theatre with sterile instrumentation"
                   className="w-full h-[380px] sm:h-[460px] lg:h-[500px] object-cover object-center group-hover:scale-102 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
-                
-                {/* Photo Caption Badge */}
-                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-slate-950/85 backdrop-blur-md border border-white/20 text-white flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] font-semibold text-emerald-300 uppercase tracking-wider block">
-                      Actual Winnie's Clinic Operating Suite
-                    </span>
-                    <p className="text-xs text-slate-200 mt-0.5">
-                      Sterile surgical room · Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => onOpenPhotoModal(
-                      CLINIC_IMAGES.operatingTheatre,
-                      "Sterile Operating Theatre",
-                      "Actual facility photograph: Winnie's Clinic sterile surgical suite in Okigwe."
-                    )}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                    title="Enlarge photograph"
-                  >
-                    <Maximize2 className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
             </div>
 

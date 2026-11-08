@@ -4,6 +4,18 @@ import { HeartPulse, Stethoscope, HandHeart, Clock, Phone, ArrowUpRight } from '
 export const WhyChooseSection: React.FC = () => {
   const commitments = [
     {
+      id: 'emergency-triage',
+      title: '24/7 — Acute Emergency Triage',
+      description: 'Always available for urgent medical attention.',
+      detail: 'Immediate medical stabilization and round-the-clock urgent triage ready at our Holy Ghost Bomb Junction, Umuchima facility in Okigwe.',
+      icon: Clock,
+      highlight: true,
+      action: {
+        label: '+234-8037-3927-30',
+        href: 'tel:+2348037392730',
+      }
+    },
+    {
       id: 'patient-centred',
       title: 'Patient-Centred Care',
       description: 'Your health, comfort and well-being come first.',
@@ -26,18 +38,6 @@ export const WhyChooseSection: React.FC = () => {
       detail: 'A healthcare culture built on empathy, acoustic privacy, and genuine respect for every patient and family.',
       icon: HandHeart,
       highlight: false,
-    },
-    {
-      id: 'emergency-triage',
-      title: '24/7 Acute Emergency Triage',
-      description: 'Always available for urgent medical attention.',
-      detail: 'Immediate medical stabilization and round-the-clock urgent triage ready at our Holy Ghost Bomb Junction, Umuchima facility in Okigwe.',
-      icon: Clock,
-      highlight: true,
-      action: {
-        label: '+234-8037-3927-30',
-        href: 'tel:+2348037392730',
-      }
     },
   ];
 

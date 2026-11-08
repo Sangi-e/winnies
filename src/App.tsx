@@ -9,17 +9,21 @@ import { ContactLocationSection } from './components/ContactLocationSection';
 import { AboutUsPage } from './components/AboutUsPage';
 import { ServicesPage } from './components/ServicesPage';
 import { ContactUsPage } from './components/ContactUsPage';
+import { BookingPage } from './components/BookingPage';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { HealthCheckerModal } from './components/HealthCheckerModal';
 import { PhotoInspectionModal } from './components/PhotoInspectionModal';
 
 export default function App() {
-  // Page Route: 'home' | 'about' | 'services' | 'contact'
-  const [currentRoute, setCurrentRoute] = useState<'home' | 'about' | 'services' | 'contact'>(() => {
+  // Page Route: 'home' | 'about' | 'services' | 'contact' | 'booking'
+  const [currentRoute, setCurrentRoute] = useState<'home' | 'about' | 'services' | 'contact' | 'booking'>(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
+      if (path === '/book' || path === '/booking' || path === '/book-consultation' || hash === '#/book' || hash === '#booking-page') {
+        return 'booking';
+      }
       if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
         return 'contact';
       }
@@ -74,7 +78,11 @@ export default function App() {
     const handlePopState = () => {
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
-      if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
+      if (path === '/book' || path === '/booking' || path === '/book-consultation' || hash === '#/book' || hash === '#booking-page') {
+        setCurrentRoute('booking');
+        setActiveSection('home');
+        document.title = "Book a Consultation | Winnie's Clinic";
+      } else if (path === '/contact' || hash === '#/contact' || hash === '#contact-page') {
         setCurrentRoute('contact');
         setActiveSection('contact');
         document.title = "Contact Us | Winnie's Clinic";
@@ -135,6 +143,18 @@ export default function App() {
   }, [currentRoute]);
 
   const handleNavigate = (sectionId: string) => {
+    // 0. User clicked "Book Consultation" page
+    if (sectionId === 'booking' || sectionId === 'book-consultation') {
+      setCurrentRoute('booking');
+      setActiveSection('home');
+      if (window.location.pathname !== '/book-consultation') {
+        window.history.pushState(null, '', '/book-consultation');
+      }
+      document.title = "Book a Consultation | Winnie's Clinic";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     // 1. User clicked "Services"
     if (sectionId === 'services') {
       setCurrentRoute('services');
@@ -171,7 +191,7 @@ export default function App() {
       return;
     }
 
-    // 4. If navigating away from a dedicated page (about, services, or contact) to Home or a section
+    // 4. If navigating away from a dedicated page (about, services, contact, booking) to Home or a section
     if (currentRoute !== 'home') {
       setCurrentRoute('home');
       if (window.location.pathname !== '/') {
@@ -211,13 +231,13 @@ export default function App() {
   const handleOpenGeneralBooking = () => {
     setSelectedDoctorId(null);
     setSelectedDepartmentId(null);
-    setIsBookingOpen(true);
+    handleNavigate('booking');
   };
 
   const handleSelectDepartmentForBooking = (deptId?: string) => {
     setSelectedDepartmentId(deptId || null);
     setSelectedDoctorId(null);
-    setIsBookingOpen(true);
+    handleNavigate('booking');
   };
 
   const handleOpenPhotoModal = (imageSrc: string, title: string, caption: string) => {
@@ -235,14 +255,24 @@ export default function App() {
       {/* Navigation Bar */}
       <Header
         onOpenBooking={handleOpenGeneralBooking}
-        activeSection={activeSection}
+        onNavigateToBookingPage={() => handleNavigate('booking')}
+        activeSection={currentRoute === 'booking' ? '' : activeSection}
         onNavigate={handleNavigate}
         onOpenHealthChecker={() => setIsHealthCheckerOpen(true)}
       />
 
       {/* Main Content: Dedicated Route Rendering */}
       <main className="flex-1">
-        {currentRoute === 'services' ? (
+        {currentRoute === 'booking' ? (
+          /* Dedicated Book Consultation Page Route */
+          <BookingPage
+            onNavigateHome={() => handleNavigate('home')}
+            onExploreServices={() => handleNavigate('services')}
+            onOpenPhotoModal={handleOpenPhotoModal}
+            preselectedDepartmentId={selectedDepartmentId}
+            preselectedDoctorId={selectedDoctorId}
+          />
+        ) : currentRoute === 'services' ? (
           /* Dedicated Our Services Page Route */
           <ServicesPage
             onOpenBooking={handleSelectDepartmentForBooking}

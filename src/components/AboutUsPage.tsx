@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Heart, 
   Shield, 
@@ -10,14 +10,87 @@ import {
   ArrowRight, 
   Info, 
   CheckCircle2, 
-  Maximize2, 
-  Edit3, 
-  Check, 
-  X,
   Building,
-  HelpCircle
+  Camera,
+  Maximize2,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Eye,
+  ZoomIn
 } from 'lucide-react';
 import { CLINIC_IMAGES, CLINIC_INFO } from '../data/clinicData';
+
+// Original clinic photographic records from project root
+import win01Img from '../assets/gallery/WIN01.jpeg';
+import win02Img from '../assets/gallery/WIN02.jpeg';
+import win03Img from '../assets/gallery/WIN03.jpeg';
+import win04Img from '../assets/gallery/WIN04.jpeg';
+import win05Img from '../assets/gallery/WIN05.jpeg';
+
+export interface GalleryMoment {
+  id: string;
+  fileLabel: string;
+  src: string;
+  fallbackSrc: string;
+  tag: string;
+  title: string;
+  caption: string;
+  aspectClass: string;
+}
+
+const GALLERY_MOMENTS: GalleryMoment[] = [
+  {
+    id: 'win-01',
+    fileLabel: 'WIN01.jpeg',
+    src: win01Img,
+    fallbackSrc: '/WIN01.jpeg',
+    tag: 'Staff & Patient Administration',
+    title: 'Mrs Euphemia Kelechi',
+    caption: 'Mrs Euphemia Kelechi, HMO Desk Officer at Winnie’s Clinic.',
+    aspectClass: 'aspect-[4/5]',
+  },
+  {
+    id: 'win-02',
+    fileLabel: 'WIN02.jpeg',
+    src: win02Img,
+    fallbackSrc: '/WIN02.jpeg',
+    tag: 'Health Leadership & Policy',
+    title: 'Visit to Health Commissioner',
+    caption: 'A visit to the Honourable Commissioner for Health in Umuahia, Abia State.',
+    aspectClass: 'aspect-[4/5]',
+  },
+  {
+    id: 'win-03',
+    fileLabel: 'WIN03.jpeg',
+    src: win03Img,
+    fallbackSrc: '/WIN03.jpeg',
+    tag: 'Clinical Governance & Auditing',
+    title: 'Clinic Staff CQI Meeting',
+    caption: 'A clinic staff meeting focused on folder auditing and Continuous Quality Improvement (CQI).',
+    aspectClass: 'aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10]',
+  },
+  {
+    id: 'win-04',
+    fileLabel: 'WIN04.jpeg',
+    src: win04Img,
+    fallbackSrc: '/WIN04.jpeg',
+    tag: 'Public Relations & Advocacy',
+    title: 'Winnie Omende',
+    caption: 'Winnie Omende, Hospital Public Relations Officer and Social Media Mobilizer.',
+    aspectClass: 'aspect-[4/5]',
+  },
+  {
+    id: 'win-05',
+    fileLabel: 'WIN05.jpeg',
+    src: win05Img,
+    fallbackSrc: '/WIN05.jpeg',
+    tag: 'Medical Leadership & Assembly',
+    title: 'Chief Medical Director (CMD)',
+    caption: 'The Chief Medical Director (CMD) during the 2026 Physicians’ Week.',
+    aspectClass: 'aspect-[3/4] lg:aspect-[4/5]',
+  },
+];
 
 interface AboutUsPageProps {
   onOpenBooking: () => void;
@@ -32,18 +105,41 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
   onNavigateHome,
   onOpenPhotoModal,
 }) => {
-  // Placeholder management state allowing clinic administrators to edit and preview missing unverified details
-  const [isEditingPlaceholders, setIsEditingPlaceholders] = useState<boolean>(false);
-  const [foundingDetails, setFoundingDetails] = useState<string>(
-    'Winnie\'s Clinic was established to address community health needs in Umuchima, Okigwe with patient-centred medical care.'
-  );
-  const [facilitySize, setFacilitySize] = useState<string>(
-    'Outpatient consultation chambers, procedure rooms, and a dedicated patient reception lounge.'
-  );
-  const [leadershipNote, setLeadershipNote] = useState<string>(
-    'Clinical directorship and senior medical governance information will be published here upon official administrative verification.'
-  );
+  const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(null);
 
+  const handleOpenLightbox = (index: number) => {
+    setActiveLightboxIndex(index);
+  };
+
+  const handleCloseLightbox = () => {
+    setActiveLightboxIndex(null);
+  };
+
+  const handleNextPhoto = useCallback(() => {
+    if (activeLightboxIndex === null) return;
+    setActiveLightboxIndex((prev) => (prev !== null ? (prev + 1) % GALLERY_MOMENTS.length : null));
+  }, [activeLightboxIndex]);
+
+  const handlePrevPhoto = useCallback(() => {
+    if (activeLightboxIndex === null) return;
+    setActiveLightboxIndex((prev) => (prev !== null ? (prev - 1 + GALLERY_MOMENTS.length) % GALLERY_MOMENTS.length : null));
+  }, [activeLightboxIndex]);
+
+  useEffect(() => {
+    if (activeLightboxIndex === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleCloseLightbox();
+      if (e.key === 'ArrowRight') handleNextPhoto();
+      if (e.key === 'ArrowLeft') handlePrevPhoto();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [activeLightboxIndex, handleNextPhoto, handlePrevPhoto]);
   return (
     <div className="bg-white text-slate-900 min-h-screen">
       
@@ -167,174 +263,31 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
                 </div>
               </div>
 
-              {/* Editable Information Notice & Placeholder Accordion */}
-              <div className="mt-8 p-5 rounded-xl bg-emerald-50/60 border border-emerald-200 text-xs">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-2.5">
-                    <Info className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-semibold text-emerald-950 block text-sm">
-                        Verified Information Notice
-                      </span>
-                      <p className="text-emerald-900/80 mt-1 leading-relaxed">
-                        In accordance with our strict data transparency standards, we do not publish unverified historical dates, ownership claims, or unverifiable statistics. Unfilled institutional records are clearly marked below as editable placeholders.
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIsEditingPlaceholders(!isEditingPlaceholders)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-800 text-white font-medium hover:bg-emerald-900 transition-colors shrink-0 cursor-pointer"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>{isEditingPlaceholders ? 'Done Editing' : 'Customize Placeholders'}</span>
-                  </button>
-                </div>
-
-                {/* Editable Placeholders Content Area */}
-                <div className="mt-5 space-y-4 pt-4 border-t border-emerald-200/80">
-                  
-                  {/* Placeholder 1: Founding Date & Background */}
-                  <div>
-                    <div className="flex items-center justify-between text-slate-700 font-semibold mb-1">
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 uppercase tracking-wider font-mono">
-                          Placeholder
-                        </span>
-                        <span>Founding & Historical Background</span>
-                      </span>
-                    </div>
-                    {isEditingPlaceholders ? (
-                      <textarea
-                        value={foundingDetails}
-                        onChange={(e) => setFoundingDetails(e.target.value)}
-                        rows={2}
-                        className="w-full text-xs p-2.5 bg-white border border-emerald-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-700"
-                      />
-                    ) : (
-                      <div className="p-3 bg-white/80 rounded-lg border border-dashed border-emerald-300 text-slate-600 italic">
-                        {foundingDetails}
-                        <span className="block not-italic text-[11px] text-slate-400 mt-1">
-                          [Clinic administration may update founding year and historical milestones as verified records are issued]
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Placeholder 2: Governance & Clinical Leadership */}
-                  <div>
-                    <div className="flex items-center justify-between text-slate-700 font-semibold mb-1">
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 uppercase tracking-wider font-mono">
-                          Placeholder
-                        </span>
-                        <span>Governance & Clinical Directorship</span>
-                      </span>
-                    </div>
-                    {isEditingPlaceholders ? (
-                      <textarea
-                        value={leadershipNote}
-                        onChange={(e) => setLeadershipNote(e.target.value)}
-                        rows={2}
-                        className="w-full text-xs p-2.5 bg-white border border-emerald-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-700"
-                      />
-                    ) : (
-                      <div className="p-3 bg-white/80 rounded-lg border border-dashed border-emerald-300 text-slate-600 italic">
-                        {leadershipNote}
-                        <span className="block not-italic text-[11px] text-slate-400 mt-1">
-                          [Official leadership profiles will be presented once formally ratified by the clinical board]
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Placeholder 3: Physical Facility Capacity */}
-                  <div>
-                    <div className="flex items-center justify-between text-slate-700 font-semibold mb-1">
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 uppercase tracking-wider font-mono">
-                          Placeholder
-                        </span>
-                        <span>Facility Scope & Physical Capacity</span>
-                      </span>
-                    </div>
-                    {isEditingPlaceholders ? (
-                      <textarea
-                        value={facilitySize}
-                        onChange={(e) => setFacilitySize(e.target.value)}
-                        rows={2}
-                        className="w-full text-xs p-2.5 bg-white border border-emerald-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-700"
-                      />
-                    ) : (
-                      <div className="p-3 bg-white/80 rounded-lg border border-dashed border-emerald-300 text-slate-600 italic">
-                        {facilitySize}
-                        <span className="block not-italic text-[11px] text-slate-400 mt-1">
-                          [Detailed architectural blueprints and bed capacity figures to be entered upon facility audits]
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                </div>
-              </div>
-
             </div>
 
-            {/* Right Column: Visual Feature (5 cols) */}
+            {/* Right Column: Key Operating Details */}
             <div className="lg:col-span-5 space-y-4">
-              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-100 relative">
-                <img
-                  src={CLINIC_IMAGES.modernReception}
-                  alt="Modern patient lounge and reception area at Winnie's Clinic, Umuchima, Okigwe"
-                  className="w-full h-[380px] sm:h-[440px] object-cover"
-                  referrerPolicy="no-referrer"
-                />
-                
-                {/* Photo Caption Badge distinguishing genuine facility */}
-                <div className="p-4 bg-white border-t border-slate-200">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-800">
-                      Actual Winnie's Clinic Space
-                    </span>
-                    <button
-                      onClick={() => onOpenPhotoModal(
-                        CLINIC_IMAGES.modernReception,
-                        "Winnie's Clinic Reception Lounge",
-                        "Actual clinic facility photograph: Outpatient lounge and reception at Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State."
-                      )}
-                      className="text-slate-400 hover:text-slate-700 transition-colors p-1"
-                      title="Inspect full-resolution photo"
-                    >
-                      <Maximize2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-900 mt-1">
-                    Reception & Patient Outpatient Lounge
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State · Designed for acoustic privacy and welcoming care.
-                  </p>
-                </div>
-              </div>
-
-              {/* Quick Summary Card */}
-              <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-2">
+              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-3">
                 <div className="font-semibold text-slate-900 text-sm">Key Operating Details</div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-200">
+                <div className="flex items-center justify-between py-2 border-b border-slate-200">
                   <span>Outpatient Consultations:</span>
                   <span className="font-medium text-slate-900">Mon – Sat (7:30 AM – 8:00 PM)</span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-200">
+                <div className="flex items-center justify-between py-2 border-b border-slate-200">
                   <span>Acute Care Triage:</span>
                   <span className="font-medium text-emerald-700">24 Hours / 7 Days</span>
                 </div>
-                <div className="flex items-center justify-between py-1">
+                <div className="flex items-center justify-between py-2 border-b border-slate-200">
                   <span>Emergency Line:</span>
                   <a href="tel:+2348037392730" className="font-bold text-slate-900 hover:text-emerald-800">
                     +234-8037-3927-30
                   </a>
                 </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span>Facility Location:</span>
+                  <span className="font-medium text-slate-900 text-right">Holy Ghost Bomb Junction, Okigwe</span>
+                </div>
               </div>
-
             </div>
 
           </div>
@@ -560,226 +513,502 @@ export const AboutUsPage: React.FC<AboutUsPageProps> = ({
       </section>
 
       {/* -------------------------------------------------------------
-          5. OUR ENVIRONMENT
-          - Visual section introducing clinic environment
-          - Actual Winnie's Clinic photos used where available
-          - Clearly distinguishes illustrative stock photography from actual clinic facilities
+          5. MOMENTS AT WINNIE'S CLINIC (EDITORIAL GALLERY)
+          - Titled: "Moments at Winnie’s Clinic"
+          - Features authentic photographic archive: WIN01.jpeg to WIN05.jpeg
+          - Verbatim captions 1 through 5
+          - Varied proportions: landscape for clinical audit meeting, tall portraits for leadership & administration
+          - Green-and-white healthcare brand identity
+          - Full interactive lightbox with keyboard & thumbnail navigation
       -------------------------------------------------------------- */}
-      <section className="py-20 lg:py-28 bg-slate-50/70 border-b border-slate-200" aria-labelledby="environment-heading">
+      <section 
+        id="moments-gallery" 
+        className="py-20 lg:py-28 bg-slate-50 border-b border-slate-200" 
+        aria-labelledby="moments-heading"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="max-w-3xl mb-14 space-y-3">
-            <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-800">
-              <Building className="w-3.5 h-3.5" />
-              <span>Physical Sanctuary</span>
+          {/* Section Heading */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 lg:mb-16">
+            <div className="max-w-2xl space-y-3">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-800">
+                <Camera className="w-3.5 h-3.5" />
+                <span>Photographic Archive</span>
+              </div>
+
+              <h2 
+                id="moments-heading"
+                className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-tight"
+              >
+                Moments at Winnie’s Clinic
+              </h2>
+
+              <p className="text-base text-slate-600 leading-relaxed font-normal">
+                Authentic photographic records documenting clinical governance, leadership dialogues, continuous quality improvement, and dedicated patient care at our facility.
+              </p>
             </div>
 
-            <h2 
-              id="environment-heading"
-              className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight text-balance"
-            >
-              Our Environment
-            </h2>
-
-            <p className="text-base text-slate-600 leading-relaxed font-normal">
-              A serene clinical atmosphere plays an important role in healing. We maintain clean, quiet, and well-lit spaces that reduce healthcare anxiety and provide a peaceful setting for consultations.
-            </p>
-          </div>
-
-          {/* Section 5A: Actual Winnie's Clinic Facilities Showcase */}
-          <div className="mb-14">
-            <div className="flex items-center justify-between pb-3 mb-6 border-b border-slate-200">
-              <div>
-                <h3 className="font-display text-xl font-bold text-slate-900">
-                  Actual Winnie's Clinic Facility Spaces
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Verified photographs of our premises located at Holy Ghost Bomb Junction, Umuchima, Okigwe, Imo State.
-                </p>
-              </div>
-              <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-md">
-                Verified Facilities
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              
-              {/* Space 1: Modern Reception */}
-              <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs flex flex-col justify-between group">
-                <div className="relative h-56 overflow-hidden bg-slate-100">
-                  <img
-                    src={CLINIC_IMAGES.modernReception}
-                    alt="Actual Winnie's Clinic Reception and Outpatient Lounge in Umuchima, Okigwe"
-                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded">
-                    Actual Clinic Space
-                  </div>
-                  <button
-                    onClick={() => onOpenPhotoModal(
-                      CLINIC_IMAGES.modernReception,
-                      "Reception & Outpatient Lounge",
-                      "Actual Winnie's Clinic facility photograph: Okigwe outpatient reception lounge."
-                    )}
-                    className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/60 text-white hover:bg-black/80 transition-colors"
-                    title="Enlarge photograph"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                <div className="p-5">
-                  <h4 className="font-display text-base font-bold text-slate-900">
-                    Reception & Outpatient Lounge
-                  </h4>
-                  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                    Airy reception area with dedicated seating, digital check-in terminal, and supportive patient relations desk.
-                  </p>
-                </div>
-              </div>
-
-              {/* Space 2: Consultation Suite */}
-              <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs flex flex-col justify-between group">
-                <div className="relative h-56 overflow-hidden bg-slate-100">
-                  <img
-                    src={CLINIC_IMAGES.consultationCare}
-                    alt="Actual Winnie's Clinic Consultation Chamber"
-                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded">
-                    Actual Clinic Space
-                  </div>
-                  <button
-                    onClick={() => onOpenPhotoModal(
-                      CLINIC_IMAGES.consultationCare,
-                      "Private Consultation Suite",
-                      "Actual Winnie's Clinic facility photograph: Sound-insulated doctor's examination room."
-                    )}
-                    className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/60 text-white hover:bg-black/80 transition-colors"
-                    title="Enlarge photograph"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                <div className="p-5">
-                  <h4 className="font-display text-base font-bold text-slate-900">
-                    Private Consultation Chambers
-                  </h4>
-                  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                    Acoustically insulated suites designed for confidential, quiet dialogue between patient and physician.
-                  </p>
-                </div>
-              </div>
-
-              {/* Space 3: Sterile Operating Suite */}
-              <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs flex flex-col justify-between group">
-                <div className="relative h-56 overflow-hidden bg-slate-100">
-                  <img
-                    src={CLINIC_IMAGES.operatingTheatre}
-                    alt="Actual Winnie's Clinic Operating Theatre and Day Procedure Suite"
-                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded">
-                    Actual Clinic Space
-                  </div>
-                  <button
-                    onClick={() => onOpenPhotoModal(
-                      CLINIC_IMAGES.operatingTheatre,
-                      "Sterile Procedure Suite",
-                      "Actual Winnie's Clinic facility photograph: Equipped procedure suite for minor and elective care."
-                    )}
-                    className="absolute top-3 right-3 p-1.5 rounded-lg bg-black/60 text-white hover:bg-black/80 transition-colors"
-                    title="Enlarge photograph"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                <div className="p-5">
-                  <h4 className="font-display text-base font-bold text-slate-900">
-                    Sterile Procedure Suites
-                  </h4>
-                  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
-                    Equipped with positive pressure airflow, surgical lighting, and sterile scrub stations for outpatient minor procedures.
-                  </p>
-                </div>
-              </div>
-
+            <div className="flex items-center gap-2 text-xs text-slate-500 shrink-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+              <span>5 Verified Archive Photographs</span>
             </div>
           </div>
 
-          {/* Section 5B: Illustrative Stock Photography (Explicitly Disclosed) */}
-          <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200">
-              <div className="flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-slate-500 shrink-0" />
-                <h4 className="font-display text-base font-bold text-slate-900">
-                  Illustrative Clinical Imagery (Stock Representation)
-                </h4>
-              </div>
-              <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md self-start sm:self-auto">
-                Stock Photography Notice
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-600 mt-3 mb-6 max-w-2xl leading-relaxed">
-              To illustrate our general medical concepts and clinical ethos, the following images represent stock healthcare photography and are explicitly distinguished from our actual physical facility.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Editorial Asymmetric Grid */}
+          <div className="space-y-8">
+            
+            {/* Top Row: Featured 2-Column Asymmetric Pair (Staff Meeting & CMD) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
               
-              {/* Illustrative Image 1 */}
-              <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
-                <div className="relative h-48 overflow-hidden">
+              {/* Feature 1: Staff Meeting (WIN03.jpeg) - Spans 7 cols */}
+              <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 flex flex-col overflow-hidden group">
+                <div 
+                  className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] overflow-hidden bg-slate-900 cursor-pointer"
+                  onClick={() => handleOpenLightbox(2)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenLightbox(2); }}}
+                  aria-label="Enlarge photograph: Clinic staff meeting focused on folder auditing and Continuous Quality Improvement"
+                >
                   <img
-                    src={CLINIC_IMAGES.heroSlide2Nursing}
-                    alt="Illustrative stock photograph: Inpatient nursing and supportive care concept"
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
+                    src={GALLERY_MOMENTS[2].src}
+                    alt={GALLERY_MOMENTS[2].caption}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (target.src !== GALLERY_MOMENTS[2].fallbackSrc) {
+                        target.src = GALLERY_MOMENTS[2].fallbackSrc;
+                      }
+                    }}
+                    className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                    loading="lazy"
                   />
-                  <div className="absolute top-2.5 left-2.5 bg-slate-900/85 text-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded">
-                    Illustrative Stock Photo
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur-xs text-slate-900 text-xs font-semibold shadow-sm">
+                      <Maximize2 className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>View in Full Lightbox</span>
+                    </span>
+                  </div>
+
+                  {/* Corner Badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-xs border border-white/20 text-white text-[11px] font-medium tracking-wide">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      {GALLERY_MOMENTS[2].tag}
+                    </span>
                   </div>
                 </div>
-                <div className="p-4 text-xs">
-                  <span className="font-semibold text-slate-900 block">
-                    Nursing & Patient Care Model
-                  </span>
-                  <span className="text-slate-500 block text-[11px] mt-0.5">
-                    Stock representation of compassionate patient-nurse dialogue.
-                  </span>
+
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span className="font-mono text-emerald-800 font-semibold">{GALLERY_MOMENTS[2].fileLabel}</span>
+                      <span>Archive Record #3</span>
+                    </div>
+                    <p className="font-display text-base sm:text-lg font-semibold text-slate-900 leading-snug">
+                      {GALLERY_MOMENTS[2].caption}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs text-slate-500">Continuous Quality Improvement (CQI)</span>
+                    <button
+                      onClick={() => handleOpenLightbox(2)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:text-emerald-950 cursor-pointer group-hover:translate-x-0.5 transition-transform"
+                    >
+                      <span>Enlarge View</span>
+                      <ZoomIn className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Illustrative Image 2 */}
-              <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
-                <div className="relative h-48 overflow-hidden">
+              {/* Feature 2: CMD during Physicians' Week (WIN05.jpeg) - Spans 5 cols */}
+              <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 flex flex-col overflow-hidden group">
+                <div 
+                  className="relative aspect-[3/4] sm:aspect-[4/3] lg:aspect-[4/5] overflow-hidden bg-slate-900 cursor-pointer"
+                  onClick={() => handleOpenLightbox(4)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenLightbox(4); }}}
+                  aria-label="Enlarge photograph: The Chief Medical Director (CMD) during the 2026 Physicians’ Week"
+                >
                   <img
-                    src={CLINIC_IMAGES.heroSlide1Surgical}
-                    alt="Illustrative stock photograph: Multi-specialist clinical team coordination concept"
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
+                    src={GALLERY_MOMENTS[4].src}
+                    alt={GALLERY_MOMENTS[4].caption}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (target.src !== GALLERY_MOMENTS[4].fallbackSrc) {
+                        target.src = GALLERY_MOMENTS[4].fallbackSrc;
+                      }
+                    }}
+                    className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                    loading="lazy"
                   />
-                  <div className="absolute top-2.5 left-2.5 bg-slate-900/85 text-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded">
-                    Illustrative Stock Photo
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur-xs text-slate-900 text-xs font-semibold shadow-sm">
+                      <Maximize2 className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>View in Full Lightbox</span>
+                    </span>
+                  </div>
+
+                  {/* Corner Badge */}
+                  <div className="absolute top-4 left-4">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/80 backdrop-blur-xs border border-white/20 text-white text-[11px] font-medium tracking-wide">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      {GALLERY_MOMENTS[4].tag}
+                    </span>
                   </div>
                 </div>
-                <div className="p-4 text-xs">
-                  <span className="font-semibold text-slate-900 block">
-                    Clinical Team Coordination Model
-                  </span>
-                  <span className="text-slate-500 block text-[11px] mt-0.5">
-                    Stock representation of multidisciplinary healthcare discussions.
-                  </span>
+
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span className="font-mono text-emerald-800 font-semibold">{GALLERY_MOMENTS[4].fileLabel}</span>
+                      <span>Archive Record #5</span>
+                    </div>
+                    <p className="font-display text-base sm:text-lg font-semibold text-slate-900 leading-snug">
+                      {GALLERY_MOMENTS[4].caption}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs text-slate-500">Clinical Leadership</span>
+                    <button
+                      onClick={() => handleOpenLightbox(4)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:text-emerald-950 cursor-pointer group-hover:translate-x-0.5 transition-transform"
+                    >
+                      <span>Enlarge View</span>
+                      <ZoomIn className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
             </div>
+
+            {/* Bottom Row: 3 Editorial Cards (Mrs Euphemia Kelechi, Health Commissioner, Winnie Omende) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              
+              {/* Card 1: Mrs Euphemia Kelechi (WIN01.jpeg) */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 flex flex-col overflow-hidden group">
+                <div 
+                  className="relative aspect-[4/5] overflow-hidden bg-slate-900 cursor-pointer"
+                  onClick={() => handleOpenLightbox(0)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenLightbox(0); }}}
+                  aria-label="Enlarge photograph: Mrs Euphemia Kelechi, HMO Desk Officer at Winnie’s Clinic"
+                >
+                  <img
+                    src={GALLERY_MOMENTS[0].src}
+                    alt={GALLERY_MOMENTS[0].caption}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (target.src !== GALLERY_MOMENTS[0].fallbackSrc) {
+                        target.src = GALLERY_MOMENTS[0].fallbackSrc;
+                      }
+                    }}
+                    className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-xs text-slate-900 text-xs font-semibold shadow-sm">
+                      <Maximize2 className="w-3 h-3 text-emerald-700" />
+                      <span>Enlarge</span>
+                    </span>
+                  </div>
+
+                  <div className="absolute top-3 left-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-xs border border-white/20 text-white text-[10px] font-medium tracking-wide">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      {GALLERY_MOMENTS[0].tag}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span className="font-mono text-emerald-800 font-semibold">{GALLERY_MOMENTS[0].fileLabel}</span>
+                      <span>Archive Record #1</span>
+                    </div>
+                    <p className="font-display text-sm sm:text-base font-semibold text-slate-900 leading-snug">
+                      {GALLERY_MOMENTS[0].caption}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-500">HMO Coordination</span>
+                    <button
+                      onClick={() => handleOpenLightbox(0)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 hover:text-emerald-950 cursor-pointer"
+                    >
+                      <span>View</span>
+                      <ZoomIn className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Commissioner for Health Visit (WIN02.jpeg) */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 flex flex-col overflow-hidden group">
+                <div 
+                  className="relative aspect-[4/5] overflow-hidden bg-slate-900 cursor-pointer"
+                  onClick={() => handleOpenLightbox(1)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenLightbox(1); }}}
+                  aria-label="Enlarge photograph: A visit to the Honourable Commissioner for Health in Umuahia, Abia State"
+                >
+                  <img
+                    src={GALLERY_MOMENTS[1].src}
+                    alt={GALLERY_MOMENTS[1].caption}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (target.src !== GALLERY_MOMENTS[1].fallbackSrc) {
+                        target.src = GALLERY_MOMENTS[1].fallbackSrc;
+                      }
+                    }}
+                    className="w-full h-full object-cover object-center group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-xs text-slate-900 text-xs font-semibold shadow-sm">
+                      <Maximize2 className="w-3 h-3 text-emerald-700" />
+                      <span>Enlarge</span>
+                    </span>
+                  </div>
+
+                  <div className="absolute top-3 left-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-xs border border-white/20 text-white text-[10px] font-medium tracking-wide">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      {GALLERY_MOMENTS[1].tag}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span className="font-mono text-emerald-800 font-semibold">{GALLERY_MOMENTS[1].fileLabel}</span>
+                      <span>Archive Record #2</span>
+                    </div>
+                    <p className="font-display text-sm sm:text-base font-semibold text-slate-900 leading-snug">
+                      {GALLERY_MOMENTS[1].caption}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-500">Government Relations</span>
+                    <button
+                      onClick={() => handleOpenLightbox(1)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 hover:text-emerald-950 cursor-pointer"
+                    >
+                      <span>View</span>
+                      <ZoomIn className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Winnie Omende (WIN04.jpeg) */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-emerald-300 transition-all duration-300 flex flex-col overflow-hidden group">
+                <div 
+                  className="relative aspect-[4/5] overflow-hidden bg-slate-900 cursor-pointer"
+                  onClick={() => handleOpenLightbox(3)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOpenLightbox(3); }}}
+                  aria-label="Enlarge photograph: Winnie Omende, Hospital Public Relations Officer and Social Media Mobilizer"
+                >
+                  <img
+                    src={GALLERY_MOMENTS[3].src}
+                    alt={GALLERY_MOMENTS[3].caption}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (target.src !== GALLERY_MOMENTS[3].fallbackSrc) {
+                        target.src = GALLERY_MOMENTS[3].fallbackSrc;
+                      }
+                    }}
+                    className="w-full h-full object-cover object-top group-hover:scale-[1.02] transition-transform duration-500 ease-out"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-xs text-slate-900 text-xs font-semibold shadow-sm">
+                      <Maximize2 className="w-3 h-3 text-emerald-700" />
+                      <span>Enlarge</span>
+                    </span>
+                  </div>
+
+                  <div className="absolute top-3 left-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-xs border border-white/20 text-white text-[10px] font-medium tracking-wide">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      {GALLERY_MOMENTS[3].tag}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span className="font-mono text-emerald-800 font-semibold">{GALLERY_MOMENTS[3].fileLabel}</span>
+                      <span>Archive Record #4</span>
+                    </div>
+                    <p className="font-display text-sm sm:text-base font-semibold text-slate-900 leading-snug">
+                      {GALLERY_MOMENTS[3].caption}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-500">Public Engagement</span>
+                    <button
+                      onClick={() => handleOpenLightbox(3)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 hover:text-emerald-950 cursor-pointer"
+                    >
+                      <span>View</span>
+                      <ZoomIn className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
           </div>
 
         </div>
       </section>
+
+      {/* -------------------------------------------------------------
+          MOMENTS LIGHTBOX MODAL (Full interactive gallery inspection)
+      -------------------------------------------------------------- */}
+      {activeLightboxIndex !== null && (
+        <div 
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="lightbox-caption"
+          className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col justify-between p-3 sm:p-6"
+        >
+          {/* Lightbox Top Header */}
+          <div className="flex items-center justify-between px-2 py-2 text-white">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950 border border-emerald-800 text-emerald-300 text-xs font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>Moments at Winnie’s Clinic</span>
+              </span>
+              <span className="text-xs text-slate-400 font-medium">
+                Photo {activeLightboxIndex + 1} of {GALLERY_MOMENTS.length}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="hidden sm:inline text-xs text-slate-400 mr-2">Use ← / → keys or Esc to close</span>
+              <button
+                onClick={handleCloseLightbox}
+                className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-white hover:text-emerald-300 transition-colors cursor-pointer border border-slate-700"
+                aria-label="Close photo preview"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Central Image & Navigation Viewport */}
+          <div className="relative flex-1 flex items-center justify-center my-2 overflow-hidden px-4 sm:px-12">
+            
+            {/* Previous Button */}
+            <button
+              onClick={handlePrevPhoto}
+              className="absolute left-2 sm:left-4 z-20 p-2 sm:p-3 rounded-full bg-slate-900/80 hover:bg-emerald-600 text-white border border-slate-700 hover:border-emerald-500 transition-all cursor-pointer backdrop-blur-xs"
+              aria-label="Previous photograph"
+            >
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+
+            {/* Displayed Image */}
+            <div className="relative max-h-[68vh] sm:max-h-[72vh] flex items-center justify-center">
+              <img
+                src={GALLERY_MOMENTS[activeLightboxIndex].src}
+                alt={GALLERY_MOMENTS[activeLightboxIndex].caption}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (target.src !== GALLERY_MOMENTS[activeLightboxIndex].fallbackSrc) {
+                    target.src = GALLERY_MOMENTS[activeLightboxIndex].fallbackSrc;
+                  }
+                }}
+                className="max-h-[68vh] sm:max-h-[72vh] max-w-full w-auto object-contain rounded-xl shadow-2xl border border-slate-800"
+              />
+            </div>
+
+            {/* Next Button */}
+            <button
+              onClick={handleNextPhoto}
+              className="absolute right-2 sm:right-4 z-20 p-2 sm:p-3 rounded-full bg-slate-900/80 hover:bg-emerald-600 text-white border border-slate-700 hover:border-emerald-500 transition-all cursor-pointer backdrop-blur-xs"
+              aria-label="Next photograph"
+            >
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
+
+          {/* Lightbox Bottom Caption Bar & Quick-Jump Strip */}
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 max-w-4xl mx-auto w-full backdrop-blur-md space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono font-bold text-emerald-400 uppercase tracking-wide">
+                    {GALLERY_MOMENTS[activeLightboxIndex].fileLabel}
+                  </span>
+                  <span className="text-slate-500 text-xs">·</span>
+                  <span className="text-xs text-slate-300 font-medium">
+                    {GALLERY_MOMENTS[activeLightboxIndex].tag}
+                  </span>
+                </div>
+                <p id="lightbox-caption" className="text-sm sm:text-base text-white font-medium leading-relaxed">
+                  {GALLERY_MOMENTS[activeLightboxIndex].caption}
+                </p>
+              </div>
+
+              <div className="shrink-0 flex items-center gap-2">
+                <button
+                  onClick={handleCloseLightbox}
+                  className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Close Viewer
+                </button>
+              </div>
+            </div>
+
+            {/* Thumbnail Jump Bar */}
+            <div className="pt-2 border-t border-slate-800/80 flex items-center justify-center gap-2 sm:gap-3 overflow-x-auto py-1">
+              {GALLERY_MOMENTS.map((m, idx) => {
+                const isCurrent = idx === activeLightboxIndex;
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => setActiveLightboxIndex(idx)}
+                    className={`relative w-12 h-10 sm:w-16 sm:h-12 rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                      isCurrent 
+                        ? 'border-emerald-400 ring-2 ring-emerald-500/40 scale-105' 
+                        : 'border-slate-700 opacity-60 hover:opacity-100 hover:border-slate-500'
+                    }`}
+                    aria-label={`Jump to photo ${idx + 1}: ${m.fileLabel}`}
+                  >
+                    <img 
+                      src={m.src} 
+                      alt="" 
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (target.src !== m.fallbackSrc) target.src = m.fallbackSrc;
+                      }}
+                      className="w-full h-full object-cover" 
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* -------------------------------------------------------------
           6. CLOSING CTA

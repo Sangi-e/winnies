@@ -47,19 +47,30 @@ export interface PatientGuide {
   bulletPoints: string[];
 }
 
+import heroDoctorImg from '../assets/images/hero_african_doctor_1793703168632.jpg';
+import teamSpecialistsImg from '../assets/images/team_african_specialists_1793703170300.jpg';
+import consultationCareImg from '../assets/images/consultation_patient_care_1793703171198.jpg';
+import operatingTheatreImg from '../assets/images/operating_theatre_surgeons_1793703172750.jpg';
+import modernReceptionImg from '../assets/images/modern_clinic_reception_1793703172410.jpg';
+import heroSlide1SurgicalImg from '../assets/images/surgical_team_wide_1793704304402.jpg';
+import heroSlide2NursingImg from '../assets/images/nurse_patient_care_1793704291076.jpg';
+import heroSlide3ConsultationImg from '../assets/images/consult_doctor_wide_1793704317252.jpg';
+import maternityNewbornImg from '../assets/images/maternity_mother_newborn_1793713097382.jpg';
+import laboratoryCareImg from '../assets/images/laboratory_diagnostic_care_1793713098031.jpg';
+
 export const CLINIC_IMAGES = {
-  heroDoctor: '/src/assets/images/hero_african_doctor_1793703168632.jpg',
-  teamSpecialists: '/src/assets/images/team_african_specialists_1793703170300.jpg',
-  consultationCare: '/src/assets/images/consultation_patient_care_1793703171198.jpg',
-  operatingTheatre: '/src/assets/images/operating_theatre_surgeons_1793703172750.jpg',
-  modernReception: '/src/assets/images/modern_clinic_reception_1793703172410.jpg',
+  heroDoctor: heroDoctorImg || '/assets/images/hero_african_doctor_1793703168632.jpg',
+  teamSpecialists: teamSpecialistsImg || '/assets/images/team_african_specialists_1793703170300.jpg',
+  consultationCare: consultationCareImg || '/assets/images/consultation_patient_care_1793703171198.jpg',
+  operatingTheatre: operatingTheatreImg || '/assets/images/operating_theatre_surgeons_1793703172750.jpg',
+  modernReception: modernReceptionImg || '/assets/images/modern_clinic_reception_1793703172410.jpg',
   // Hero Carousel Widescreen Editorial Photography
-  heroSlide1Surgical: '/src/assets/images/surgical_team_wide_1793704304402.jpg',
-  heroSlide2Nursing: '/src/assets/images/nurse_patient_care_1793704291076.jpg',
-  heroSlide3Consultation: '/src/assets/images/consult_doctor_wide_1793704317252.jpg',
+  heroSlide1Surgical: heroSlide1SurgicalImg || '/assets/images/surgical_team_wide_1793704304402.jpg',
+  heroSlide2Nursing: heroSlide2NursingImg || '/assets/images/nurse_patient_care_1793704291076.jpg',
+  heroSlide3Consultation: heroSlide3ConsultationImg || '/assets/images/consult_doctor_wide_1793704317252.jpg',
   // Maternity and Laboratory Photography
-  maternityNewborn: '/src/assets/images/maternity_mother_newborn_1793713097382.jpg',
-  laboratoryCare: '/src/assets/images/laboratory_diagnostic_care_1793713098031.jpg',
+  maternityNewborn: maternityNewbornImg || '/assets/images/maternity_mother_newborn_1793713097382.jpg',
+  laboratoryCare: laboratoryCareImg || '/assets/images/laboratory_diagnostic_care_1793713098031.jpg',
 };
 
 export const CLINIC_INFO = {
